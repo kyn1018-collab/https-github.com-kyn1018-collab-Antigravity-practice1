@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antigravity AI-Native 교사 연수 포털</title>
+    <title>antigravity 실습</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -83,16 +83,17 @@
         }
 
         .logo-title h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #ffffff, #9ca3af);
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #06b6d4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .logo-title p {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
 
         .badge {
@@ -108,7 +109,7 @@
         /* Layout */
         .container {
             display: grid;
-            grid-template-columns: 420px 1fr;
+            grid-template-columns: 440px 1fr;
             flex: 1;
             height: calc(100vh - 73px);
         }
@@ -122,6 +123,15 @@
             flex-direction: column;
             gap: 1.5rem;
             overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
         }
 
         .section-title {
@@ -156,7 +166,7 @@
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
-            padding: 1rem;
+            padding: 0.85rem 1rem;
             transition: all 0.2s ease;
         }
 
@@ -332,7 +342,7 @@
         @media (min-width: 1200px) {
             .workspace {
                 grid-template-rows: none;
-                grid-template-columns: 450px 1fr;
+                grid-template-columns: 460px 1fr;
             }
         }
 
@@ -476,7 +486,7 @@
             background: #4338ca;
         }
 
-        /* Preview Screen (Sandbox Browser) */
+        /* Preview Panel */
         .preview-panel {
             padding: 1.5rem;
             display: flex;
@@ -796,8 +806,8 @@
         <div class="logo-area">
             <div class="logo-icon">AG</div>
             <div class="logo-title">
-                <h1>Antigravity AI-Native 연수 포털</h1>
-                <p>중·고등학교 교사를 위한 인공지능 협업 개발 실습</p>
+                <h1>antigravity 실습</h1>
+                <p>교사를 위한 인공지능 협업 개발 실습</p>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -837,10 +847,10 @@
                     <div class="mission-step active" id="step-1-indicator">
                         <div class="step-indicator">1</div>
                         <div class="step-content">
-                            <div class="step-title">기획 도면 전달하기 (복사&붙여넣기)</div>
-                            <div class="step-desc">우측 하단의 프롬프트를 복사한 뒤, AI 채팅창에 그대로 입력해 보세요.</div>
+                            <div class="step-title">기획 도면 전달하기 (로컬 파일 참조)</div>
+                            <div class="step-desc">내 컴퓨터 내 문서 파일을 찾아 정보를 가져오게 하고, 초기 기획안을 AI에게 입력합니다.</div>
                             <div class="step-action-box">
-                                <div class="code-snippet" id="prompt-1">"교실에서 사용할 '학급 랜덤 발표자 뽑기' 웹앱을 만들어줘. 이름 입력란, 당첨자 영역, 뽑기 버튼이 깔끔하게 정렬된 인터페이스여야 해."</div>
+                                <div class="code-snippet" id="prompt-1">"내 컴퓨터 C:\대학원\학생명단.txt 파일에서 명단을 참조해서 기본값으로 채워주고, 교실에서 사용할 '학급 랜덤 발표자 뽑기' 웹앱을 만들어줘. 이름 입력란, 당첨자 영역, 뽑기 버튼이 깔끔하게 정렬된 인터페이스여야 해."</div>
                                 <button class="btn-copy" onclick="copyText('prompt-1')">📋 프롬프트 복사</button>
                             </div>
                         </div>
@@ -872,8 +882,12 @@
                     <div class="mission-step" id="step-4-indicator">
                         <div class="step-indicator">4</div>
                         <div class="step-content">
-                            <div class="step-title">GitHub에 Push & Pages로 출판하기</div>
-                            <div class="step-desc">완성된 프로젝트를 GitHub 원격 저장소에 Push하고, 무료 글로벌 웹 호스팅(GitHub Pages)을 통해 나만의 고유 Live URL을 생성 및 출판합니다.</div>
+                            <div class="step-title">깃허브 푸시 및 Pages 출판</div>
+                            <div class="step-desc">실습 포털 배포 명령을 내려 깃허브 원격 저장소에 업로드하고 실제 주소로 배포를 요청합니다.</div>
+                            <div class="step-action-box">
+                                <div class="code-snippet" id="prompt-4">"웹앱이 완료되면 브라우저에서 직접 실행해보면서 오류를 수정해줘. 그리고 github(https://github.com/kyn1018-collab/practice.git)로 푸쉬해주고 githubpage에서 출판까지 완료해줘."</div>
+                                <button class="btn-copy" onclick="copyText('prompt-4')">📋 배포 프롬프트 복사</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -959,8 +973,8 @@
                         <!-- Success Portal -->
                         <div class="success-overlay" id="app-success" style="display: none;">
                             <div class="success-icon">🚀</div>
-                            <h2>글로벌 배포 완료!</h2>
-                            <p>축하합니다! 성공적으로 AI와 협업하여 오류를 해결하고<br>나만의 맞춤형 랜덤 발표기 앱을 글로벌 서버(GitHub Pages)에 배포하였습니다.</p>
+                            <h2>GitHub Pages 실시간 출판 완료!</h2>
+                            <p>축하합니다! 성공적으로 모든 코드를 수정하고<br>지정한 깃허브 저장소로 업로드 후 Pages 사이트로 실시간 출판했습니다.</p>
                             <button class="btn-action" style="background: var(--success);" onclick="resetTutorial()">처음부터 다시 실습하기</button>
                         </div>
                     </div>
@@ -1016,8 +1030,8 @@
 
         function processStep(userInput) {
             if (currentStep === 1) {
-                if (userInput.includes("학급 랜덤 발표자") || userInput.includes("만들어줘")) {
-                    appendMessage('agent', `좋습니다! 요청하신 <strong>'학급 랜덤 발표자 뽑기'</strong> 웹앱을 제작했습니다. <br>인프라 환경을 구성하고 로컬 포트 5173에 로딩합니다.<br><pre>Creating index.html...\nCreating app.js...\nRunning local dev server...</pre>`);
+                if (userInput.includes("학생명단.txt") || userInput.includes("학급 랜덤 발표자") || userInput.includes("만들어줘")) {
+                    appendMessage('agent', `알겠습니다! 로컬 파일 <code>C:\\대학원\\학생명단.txt</code>를 탐색하여 학생 목록(김민수, 이영희, 박지민 등)을 성공적으로 읽어왔습니다.<br><br>이를 기본값으로 채우고 요청하신 <strong>'학급 랜덤 발표자 뽑기'</strong> 웹앱을 빌드하겠습니다.<br><pre>Reading files from C:\\대학원\\학생명단.txt...\nCreating index.html...\nCreating app.js...\nRunning local dev server...</pre>`);
                     
                     // Show error state inside browser preview (Step 2 triggering)
                     setTimeout(() => {
@@ -1029,7 +1043,7 @@
                         updateStep(2);
                     }, 1500);
                 } else {
-                    appendMessage('agent', `Step 1에서는 학급 랜덤 발표자 웹앱 기획 프롬프트가 필요합니다. 미션 가이드에 있는 복사 버튼을 눌러 채팅창에 붙여넣고 전송해 주세요.`);
+                    appendMessage('agent', `Step 1에서는 학생 명단 파일을 참조하여 학급 발표기 웹앱을 기획하는 프롬프트가 필요합니다. 미션 가이드에 있는 복사 버튼을 눌러 채팅창에 붙여넣고 전송해 주세요.`);
                 }
             } 
             else if (currentStep === 2) {
@@ -1057,40 +1071,30 @@
                     document.getElementById('picker-title').innerText = "우리 학교 랜덤 뽑기";
                     
                     setTimeout(() => {
-                        appendMessage('agent', `디자인 변경이 완료되었습니다. 내장 브라우저에서 아름다운 다크 네온 블루 UI를 확인하세요. <br><br>이제 마지막 <strong>Step 4: GitHub Pages</strong>로 최종 글로벌 배포를 진행하겠습니다. <br><pre>git init\ngit add .\ngit commit -m "feat: custom neon picker"\ngit remote add origin https://github.com/kyn10181/my-neon-picker.git\ngit push -u origin main</pre>`);
-                        
-                        setTimeout(() => {
-                            appendMessage('agent', `🔄 **GitHub Pages 빌드 진행 중:**<br><pre>GitHub Actions: Starting deploy workflow...\nBuilding static sites...\nUploading artifact to GitHub Pages...\nDeploying to environment: github-pages...</pre>`);
-                            
-                            setTimeout(() => {
-                                document.getElementById('app-working').style.display = 'none';
-                                document.getElementById('app-success').style.display = 'flex';
-                                appendMessage('agent', `🎉 **최종 출판 완료!**<br>GitHub Pages를 통해 나만의 고유 라이브 사이트 주소가 활성화되었습니다.<br><a href="https://kyn10181.github.io/my-neon-picker/" target="_blank" style="color: var(--secondary); font-weight: 600;">https://kyn10181.github.io/my-neon-picker/</a><br><br>성공적으로 모든 실습 단계를 완수하셨습니다!`);
-                                updateStep(4);
-                            }, 2500);
-                        }, 2500);
+                        appendMessage('agent', `디자인 변경이 완료되었습니다. 내장 브라우저에서 아름다운 다크 네온 블루 UI를 확인하세요. <br><br>이제 마지막 <strong>Step 4: 배포 요청</strong> 단계입니다. 미션 가이드 4단계의 배포 프롬프트를 복사하여 저에게 지시해 주세요.`);
+                        updateStep(4);
                     }, 1000);
                 } else {
                     appendMessage('agent', `배경색이나 타이틀 변경 지시를 내려보세요! 미션 가이드 3단계의 프롬프트를 참고하세요.`);
                 }
             }
-        }
-
-        function updateStep(step) {
-            currentStep = step;
-            // Disable all indicators first
-            for (let i = 1; i <= 4; i++) {
-                const el = document.getElementById(`step-${i}-indicator`);
-                el.classList.remove('active');
-                if (i < step) {
-                    el.classList.add('completed');
+            else if (currentStep === 4) {
+                if (userInput.includes("practice.git") || userInput.includes("githubpage") || userInput.includes("푸쉬")) {
+                    appendMessage('agent', `프로젝트 소스 코드 전체를 지정하신 깃허브 원격 저장소에 업로드하고 최종 출판을 시작하겠습니다. <br><pre>git init\ngit add .\ngit commit -m "feat: publish training portal"\ngit remote add origin https://github.com/kyn1018-collab/practice.git\ngit push -u origin main --force</pre>`);
+                    
+                    setTimeout(() => {
+                        appendMessage('agent', `🔄 **GitHub Pages 빌드 및 배포 대기 중:**<br><pre>GitHub Actions: Triggering deployment workflow...\nBuilding static files...\nUploading deployment artifact...\nDeploying to live environment: github-pages...</pre>`);
+                        
+                        setTimeout(() => {
+                            document.getElementById('app-working').style.display = 'none';
+                            document.getElementById('app-success').style.display = 'flex';
+                            appendMessage('agent', `🎉 **GitHub Pages 최종 출판 완료!**<br>선생님의 웹앱이 다음 링크에서 지금 전 세계로 서비스 중입니다:<br><br><a href="https://kyn1018-collab.github.io/practice/" target="_blank" style="color: var(--secondary); font-weight: 800; text-decoration: underline; font-size: 1rem;">https://kyn1018-collab.github.io/practice/</a><br><br>마우스로 클릭해서 직접 라이브 앱을 사용하고 실습을 최종 확인해 보세요!`);
+                        }, 3000);
+                    }, 2000);
                 } else {
-                    el.classList.remove('completed');
+                    appendMessage('agent', `배포를 시작하려면 미션 가이드 4단계의 깃허브 배포 요청 프롬프트를 복사하여 전송해 주세요.`);
                 }
             }
-            // Active current
-            const currentEl = document.getElementById(`step-${step}-indicator`);
-            if (currentEl) currentEl.classList.add('active');
         }
 
         // Live App Functionality (Inside simulated iframe)
