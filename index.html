@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity AI-Native 교사 연수 포털</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: rgba(20, 27, 45, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.4);
+            --secondary: #06b6d4;
+            --secondary-glow: rgba(6, 182, 212, 0.4);
+            --accent: #ec4899;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --success: #10b981;
+            --error: #ef4444;
+            --font-display: 'Outfit', 'Noto Sans KR', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            font-family: var(--font-display);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.25rem;
+            box-shadow: 0 0 15px var(--primary-glow);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo-title h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-title p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: var(--secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Layout */
+        .container {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            flex: 1;
+            height: calc(100vh - 73px);
+        }
+
+        /* Sidebar - Guides & Steps */
+        .sidebar {
+            background: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1rem;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+
+        /* Strategy Cards */
+        .strategy-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .strategy-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .strategy-card:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            background: rgba(6, 182, 212, 0.02);
+        }
+
+        .strategy-card h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .strategy-number {
+            font-size: 0.75rem;
+            background: var(--primary);
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .strategy-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Mission Tracker */
+        .mission-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.25rem;
+        }
+
+        .mission-step {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .mission-step:last-child {
+            padding-bottom: 0;
+        }
+
+        .mission-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 30px;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .mission-step.active:not(:last-child)::after {
+            background: linear-gradient(to bottom, var(--primary), var(--border-color));
+        }
+
+        .mission-step.completed:not(:last-child)::after {
+            background: var(--success);
+        }
+
+        .step-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .mission-step.active .step-indicator {
+            border-color: var(--primary);
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .mission-step.completed .step-indicator {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .step-content {
+            flex: 1;
+            padding-top: 2px;
+        }
+
+        .step-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-action-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .mission-step.active .step-action-box {
+            display: block;
+            border-color: rgba(79, 70, 229, 0.4);
+        }
+
+        .code-snippet {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--secondary);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            user-select: all;
+        }
+
+        .btn-copy {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.35rem 0.75rem;
+            border-radius: 0.35rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: background 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: #4338ca;
+        }
+
+        /* Workspace Grid (Main Area) */
+        .workspace {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        @media (min-width: 1200px) {
+            .workspace {
+                grid-template-rows: none;
+                grid-template-columns: 450px 1fr;
+            }
+        }
+
+        /* Agent Chat Panel */
+        .chat-panel {
+            background: rgba(15, 22, 38, 0.5);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(15, 22, 38, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-history::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-history::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 0.85rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .chat-bubble.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+
+        .chat-bubble.agent {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .chat-bubble.agent pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.5rem;
+            border-radius: 0.35rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background: rgba(15, 22, 38, 0.9);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+        }
+
+        .chat-input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+            padding: 0.25rem 0.5rem;
+            resize: none;
+            height: 36px;
+        }
+
+        .btn-send {
+            background: var(--primary);
+            border: none;
+            color: white;
+            border-radius: 0.5rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-send:hover {
+            background: #4338ca;
+        }
+
+        /* Preview Screen (Sandbox Browser) */
+        .preview-panel {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .browser-frame {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .browser-header {
+            background: #0f172a;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .browser-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .browser-dot.red { background: #ef4444; }
+        .browser-dot.yellow { background: #f59e0b; }
+        .browser-dot.green { background: #10b981; }
+
+        .browser-address-bar {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.35rem;
+            padding: 0.25rem 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .browser-content {
+            flex: 1;
+            background: #ffffff;
+            color: #1e293b;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        /* Virtual Application UI (Inside Sandbox Browser) */
+        .sandbox-app {
+            padding: 2rem;
+            font-family: sans-serif;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .sandbox-app.empty {
+            color: #94a3b8;
+        }
+
+        .sandbox-app.empty svg {
+            width: 4rem;
+            height: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* The Live App simulated state */
+        .picker-app-container {
+            width: 100%;
+            max-width: 450px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            text-align: left;
+        }
+
+        .picker-app-container.custom-theme {
+            background: #0f172a;
+            color: #f8fafc;
+            border-color: #38bdf8;
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+        }
+
+        .picker-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            text-align: center;
+            transition: color 0.3s;
+        }
+
+        .picker-app-container.custom-theme .picker-title {
+            color: #38bdf8;
+        }
+
+        .picker-box {
+            background: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 2rem 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #64748b;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .picker-app-container.custom-theme .picker-box {
+            background: #1e293b;
+            border-color: #475569;
+            color: #94a3b8;
+        }
+
+        .picker-app-container.custom-theme .picker-box.highlight {
+            color: #38bdf8;
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+            animation: pulse-glow 0.5s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 5px rgba(56, 189, 248, 0.2); }
+            to { box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
+        }
+
+        .picker-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .picker-app-container.custom-theme .picker-input {
+            background: #1e293b;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+
+        .picker-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .picker-btn:hover {
+            background: #4338ca;
+        }
+
+        .picker-app-container.custom-theme .picker-btn {
+            background: #38bdf8;
+            color: #0f172a;
+        }
+
+        .picker-app-container.custom-theme .picker-btn:hover {
+            background: #0ea5e9;
+        }
+
+        /* Error Overlay inside iframe */
+        .error-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1e1b4b;
+            color: #fecaca;
+            font-family: monospace;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 10;
+        }
+
+        .error-overlay h2 {
+            color: #fca5a5;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-overlay pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-action {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+        }
+
+        /* Modal / Success Confetti */
+        .success-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            text-align: center;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .success-overlay h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #38bdf8, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .success-overlay p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .workspace {
+                grid-template-columns: 1fr;
+                height: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">AG</div>
+            <div class="logo-title">
+                <h1>Antigravity AI-Native 연수 포털</h1>
+                <p>중·고등학교 교사를 위한 인공지능 협업 개발 실습</p>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span class="badge">실습 전략 체험관</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div>
+                <div class="section-title">AI-Native 실습 4대 전략</div>
+                <div class="strategy-list">
+                    <div class="strategy-card">
+                        <h3><span class="strategy-number">1</span> 카피 앤 페이스트</h3>
+                        <p>기획 단계에서는 직접 작성 대신 구조화된 고품질 프롬프트를 복사하여 빠르게 시작합니다.</p>
+                    </div>
+                    <div class="strategy-card">
+                        <h3><span class="strategy-number">2</span> 에러 대처 노하우</h3>
+                        <p>코딩 중 에러가 발생해도 당황하지 않고, 에러 전체를 고스란히 AI에게 질문해 해결합니다.</p>
+                    </div>
+                    <div class="strategy-card">
+                        <h3><span class="strategy-number">3</span> 시각 피드백 중심</h3>
+                        <p>눈으로 바로 확인되는 시각 효과(버튼 애니메이션 등) 위주로 웹앱을 구성합니다.</p>
+                    </div>
+                    <div class="strategy-card">
+                        <h3><span class="strategy-number">4</span> 마이크로 커스텀</h3>
+                        <p>앱의 타이틀, 색상 등 간단한 요소 1가지를 자연어로 변경하며 완성합니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">미션 진행 현황</div>
+                <div class="mission-panel">
+                    <!-- Step 1 -->
+                    <div class="mission-step active" id="step-1-indicator">
+                        <div class="step-indicator">1</div>
+                        <div class="step-content">
+                            <div class="step-title">기획 도면 전달하기 (복사&붙여넣기)</div>
+                            <div class="step-desc">우측 하단의 프롬프트를 복사한 뒤, AI 채팅창에 그대로 입력해 보세요.</div>
+                            <div class="step-action-box">
+                                <div class="code-snippet" id="prompt-1">"교실에서 사용할 '학급 랜덤 발표자 뽑기' 웹앱을 만들어줘. 이름 입력란, 당첨자 영역, 뽑기 버튼이 깔끔하게 정렬된 인터페이스여야 해."</div>
+                                <button class="btn-copy" onclick="copyText('prompt-1')">📋 프롬프트 복사</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="mission-step" id="step-2-indicator">
+                        <div class="step-indicator">2</div>
+                        <div class="step-content">
+                            <div class="step-title">발생한 오류를 AI에게 제보하기</div>
+                            <div class="step-desc">웹앱 화면에 오류가 발생했습니다. 에러 로그를 복사하여 AI에게 전달하세요.</div>
+                            <div class="step-action-box">
+                                <button class="btn-copy" onclick="copyErrorAndNotify()">📋 에러 복사 및 AI 제보 준비</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="mission-step" id="step-3-indicator">
+                        <div class="step-indicator">3</div>
+                        <div class="step-content">
+                            <div class="step-title">나만의 맞춤형 커스텀 수행하기</div>
+                            <div class="step-desc">앱 디자인과 타이틀을 내 입맛에 맞게 꾸며달라고 AI에게 지시합니다.</div>
+                            <div class="step-action-box">
+                                <div class="code-snippet" id="prompt-3">"디자인을 다크 모드의 세련된 네온 블루 테마로 바꾸고, 당첨 카드가 강조될 때 반짝이는 애니메이션 효과를 줘. 그리고 타이틀도 '우리 학교 랜덤 뽑기'로 수정해줘."</div>
+                                <button class="btn-copy" onclick="copyText('prompt-3')">📋 요구사항 복사</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="mission-step" id="step-4-indicator">
+                        <div class="step-indicator">4</div>
+                        <div class="step-content">
+                            <div class="step-title">GitHub에 Push & Pages로 출판하기</div>
+                            <div class="step-desc">완성된 프로젝트를 GitHub 원격 저장소에 Push하고, 무료 글로벌 웹 호스팅(GitHub Pages)을 통해 나만의 고유 Live URL을 생성 및 출판합니다.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="workspace">
+            <!-- Chat Panel -->
+            <div class="chat-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="status-dot"></div>
+                        Antigravity AI Assistant
+                    </div>
+                </div>
+                <div class="chat-history" id="chat-history">
+                    <div class="chat-bubble agent">
+                        안녕하세요! 선생님. Antigravity AI-Native 연수에 오신 것을 환영합니다. <br><br>
+                        왼쪽 미션 패널의 <strong>Step 1</strong>에 있는 기획 프롬프트를 복사하여 아래 채팅창에 <strong>[붙여넣기]</strong>하고 전송해 보세요!
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <div class="chat-input-wrapper">
+                        <textarea class="chat-input" id="chat-input" placeholder="여기에 프롬프트를 붙여넣으세요..."></textarea>
+                        <button class="btn-send" onclick="handleSendMessage()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel">
+                <div class="browser-frame">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <div class="browser-dot red"></div>
+                            <div class="browser-dot yellow"></div>
+                            <div class="browser-dot green"></div>
+                        </div>
+                        <div class="browser-address-bar">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            <span>http://localhost:5173/</span>
+                        </div>
+                    </div>
+                    <div class="browser-content" id="browser-content">
+                        <!-- Initial state -->
+                        <div class="sandbox-app empty" id="app-initial">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                            </svg>
+                            <p>아직 빌드된 애플리케이션이 없습니다.<br>AI에게 기획 명령을 내리면 빌드가 시작됩니다.</p>
+                        </div>
+
+                        <!-- App Step 1 (With Bug) -->
+                        <div class="error-overlay" id="app-error" style="display: none;">
+                            <h2>⚠️ Application Runtime Error</h2>
+                            <pre id="error-log">TypeError: Cannot read properties of undefined (reading 'split')
+  at initStudentList (app.js:24:32)
+  at HTMLButtonElement.onclick (index.html:42:15)</pre>
+                            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">코드 실행 중 예기치 못한 크리티컬 버그가 발생했습니다.</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn-action" onclick="copyErrorText()">📋 에러 코드 복사하기</button>
+                            </div>
+                        </div>
+
+                        <!-- App Step 2 & 3 (Working Application) -->
+                        <div class="sandbox-app" id="app-working" style="display: none;">
+                            <div class="picker-app-container" id="picker-container">
+                                <div class="picker-title" id="picker-title">학급 랜덤 발표자 뽑기</div>
+                                <div class="picker-box" id="picker-box">?</div>
+                                <input type="text" class="picker-input" id="student-names" value="김민수, 이영희, 박지민, 최수현, 정우진, 강다은">
+                                <button class="picker-btn" onclick="startPicking()">🎉 발표자 뽑기</button>
+                            </div>
+                        </div>
+
+                        <!-- Success Portal -->
+                        <div class="success-overlay" id="app-success" style="display: none;">
+                            <div class="success-icon">🚀</div>
+                            <h2>글로벌 배포 완료!</h2>
+                            <p>축하합니다! 성공적으로 AI와 협업하여 오류를 해결하고<br>나만의 맞춤형 랜덤 발표기 앱을 글로벌 서버(GitHub Pages)에 배포하였습니다.</p>
+                            <button class="btn-action" style="background: var(--success);" onclick="resetTutorial()">처음부터 다시 실습하기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const chatHistory = document.getElementById('chat-history');
+        const chatInput = document.getElementById('chat-input');
+
+        function appendMessage(sender, text) {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            bubble.innerHTML = text;
+            chatHistory.appendChild(bubble);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+            alert("클립보드에 프롬프트가 복사되었습니다! 채팅 입력창에 붙여넣기(Ctrl+V) 해보세요.");
+        }
+
+        function copyErrorText() {
+            const errorText = document.getElementById('error-log').innerText;
+            navigator.clipboard.writeText(errorText);
+            alert("에러 로그가 복사되었습니다! 이제 AI 비서에게 그대로 보내서 버그 해결을 요구해 보세요.");
+        }
+
+        function copyErrorAndNotify() {
+            const errorText = document.getElementById('error-log').innerText;
+            navigator.clipboard.writeText(errorText);
+            chatInput.value = `이 에러가 나는데 고쳐줘:\n${errorText}`;
+            alert("채팅창에 에러 해결 요청 프롬프트가 자동으로 준비되었습니다! 전송 버튼을 눌러 전송하세요.");
+        }
+
+        function handleSendMessage() {
+            const userText = chatInput.value.trim();
+            if (!userText) return;
+
+            appendMessage('user', userText);
+            chatInput.value = '';
+
+            // Loading state simulator
+            setTimeout(() => {
+                processStep(userText);
+            }, 1000);
+        }
+
+        function processStep(userInput) {
+            if (currentStep === 1) {
+                if (userInput.includes("학급 랜덤 발표자") || userInput.includes("만들어줘")) {
+                    appendMessage('agent', `좋습니다! 요청하신 <strong>'학급 랜덤 발표자 뽑기'</strong> 웹앱을 제작했습니다. <br>인프라 환경을 구성하고 로컬 포트 5173에 로딩합니다.<br><pre>Creating index.html...\nCreating app.js...\nRunning local dev server...</pre>`);
+                    
+                    // Show error state inside browser preview (Step 2 triggering)
+                    setTimeout(() => {
+                        document.getElementById('app-initial').style.display = 'none';
+                        document.getElementById('app-error').style.display = 'flex';
+                        
+                        appendMessage('agent', `⚠️ <strong>런타임 에러 경고:</strong> 앱 실행 중 오류가 발견되었습니다. 브라우저 프리뷰 화면을 확인하고, <strong>에러 로그를 복사(Copy)해서 저에게 그대로 전달(Paste)</strong>해 주세요.`);
+                        
+                        updateStep(2);
+                    }, 1500);
+                } else {
+                    appendMessage('agent', `Step 1에서는 학급 랜덤 발표자 웹앱 기획 프롬프트가 필요합니다. 미션 가이드에 있는 복사 버튼을 눌러 채팅창에 붙여넣고 전송해 주세요.`);
+                }
+            } 
+            else if (currentStep === 2) {
+                if (userInput.includes("TypeError") || userInput.includes("error-log") || userInput.includes("고쳐줘")) {
+                    appendMessage('agent', `에러가 확인되었습니다! 원인을 분석했습니다. <br><code>app.js</code>의 24번째 라인에서 빈 명단을 쪼개는 과정(split)에서 null 체크 예외처리가 빠져 있었습니다. 즉시 수정하겠습니다. <br><pre>Modified app.js - Line 24\nFixed: studentList = inputVal ? inputVal.split(',') : [];</pre> 수정이 완료되었습니다! 프리뷰를 확인해 보세요.`);
+                    
+                    document.getElementById('app-error').style.display = 'none';
+                    document.getElementById('app-working').style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        appendMessage('agent', `성공적으로 작동합니다! 이제 <strong>Step 3: 마이크로 커스터마이징</strong> 단계입니다. 미션 가이드에서 원하는 디자인 테마 변경 요구사항을 복사하여 저에게 지시해 보세요.`);
+                        updateStep(3);
+                    }, 1000);
+                } else {
+                    appendMessage('agent', `감지된 에러 메시지를 알려주시면 코드를 즉시 디버깅하여 고칠 수 있습니다. 에러 복사 버튼을 사용해 보세요.`);
+                }
+            } 
+            else if (currentStep === 3) {
+                if (userInput.includes("네온 블루") || userInput.includes("다크 모드") || userInput.includes("우리 학교")) {
+                    appendMessage('agent', `선생님의 요청에 맞춰 커스텀 스타일 및 타이틀을 업데이트합니다.<br><pre>Updating index.css...\nChanging title to "우리 학교 랜덤 뽑기"...\nApplying Neon Blue Theme...</pre> 업데이트 완료!`);
+                    
+                    // Custom theme apply
+                    const container = document.getElementById('picker-container');
+                    container.classList.add('custom-theme');
+                    document.getElementById('picker-title').innerText = "우리 학교 랜덤 뽑기";
+                    
+                    setTimeout(() => {
+                        appendMessage('agent', `디자인 변경이 완료되었습니다. 내장 브라우저에서 아름다운 다크 네온 블루 UI를 확인하세요. <br><br>이제 마지막 <strong>Step 4: GitHub Pages</strong>로 최종 글로벌 배포를 진행하겠습니다. <br><pre>git init\ngit add .\ngit commit -m "feat: custom neon picker"\ngit remote add origin https://github.com/kyn10181/my-neon-picker.git\ngit push -u origin main</pre>`);
+                        
+                        setTimeout(() => {
+                            appendMessage('agent', `🔄 **GitHub Pages 빌드 진행 중:**<br><pre>GitHub Actions: Starting deploy workflow...\nBuilding static sites...\nUploading artifact to GitHub Pages...\nDeploying to environment: github-pages...</pre>`);
+                            
+                            setTimeout(() => {
+                                document.getElementById('app-working').style.display = 'none';
+                                document.getElementById('app-success').style.display = 'flex';
+                                appendMessage('agent', `🎉 **최종 출판 완료!**<br>GitHub Pages를 통해 나만의 고유 라이브 사이트 주소가 활성화되었습니다.<br><a href="https://kyn10181.github.io/my-neon-picker/" target="_blank" style="color: var(--secondary); font-weight: 600;">https://kyn10181.github.io/my-neon-picker/</a><br><br>성공적으로 모든 실습 단계를 완수하셨습니다!`);
+                                updateStep(4);
+                            }, 2500);
+                        }, 2500);
+                    }, 1000);
+                } else {
+                    appendMessage('agent', `배경색이나 타이틀 변경 지시를 내려보세요! 미션 가이드 3단계의 프롬프트를 참고하세요.`);
+                }
+            }
+        }
+
+        function updateStep(step) {
+            currentStep = step;
+            // Disable all indicators first
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}-indicator`);
+                el.classList.remove('active');
+                if (i < step) {
+                    el.classList.add('completed');
+                } else {
+                    el.classList.remove('completed');
+                }
+            }
+            // Active current
+            const currentEl = document.getElementById(`step-${step}-indicator`);
+            if (currentEl) currentEl.classList.add('active');
+        }
+
+        // Live App Functionality (Inside simulated iframe)
+        let pickingInterval;
+        function startPicking() {
+            const namesInput = document.getElementById('student-names').value;
+            const names = namesInput.split(',').map(n => n.trim()).filter(n => n.length > 0);
+            
+            if (names.length === 0) {
+                alert("이름을 1개 이상 입력해 주세요!");
+                return;
+            }
+
+            const box = document.getElementById('picker-box');
+            box.classList.add('highlight');
+            
+            let count = 0;
+            clearInterval(pickingInterval);
+            pickingInterval = setInterval(() => {
+                const tempIndex = Math.floor(Math.random() * names.length);
+                box.innerText = names[tempIndex];
+                count++;
+                
+                if (count > 15) {
+                    clearInterval(pickingInterval);
+                    const finalIndex = Math.floor(Math.random() * names.length);
+                    box.innerText = names[finalIndex];
+                    box.style.fontSize = "2.5rem";
+                    box.style.color = "#38bdf8";
+                }
+            }, 100);
+        }
+
+        function resetTutorial() {
+            currentStep = 1;
+            updateStep(1);
+            chatHistory.innerHTML = `
+                <div class="chat-bubble agent">
+                    안녕하세요! 선생님. Antigravity AI-Native 연수에 오신 것을 환영합니다. <br><br>
+                    왼쪽 미션 패널의 <strong>Step 1</strong>에 있는 기획 프롬프트를 복사하여 아래 채팅창에 <strong>[붙여넣기]</strong>하고 전송해 보세요!
+                </div>
+            `;
+            
+            // UI elements reset
+            const container = document.getElementById('picker-container');
+            container.classList.remove('custom-theme');
+            document.getElementById('picker-title').innerText = "학급 랜덤 발표자 뽑기";
+            document.getElementById('picker-box').innerText = "?";
+            document.getElementById('picker-box').style.fontSize = "1.5rem";
+            document.getElementById('picker-box').style.color = "";
+            document.getElementById('picker-box').classList.remove('highlight');
+            
+            document.getElementById('app-initial').style.display = 'flex';
+            document.getElementById('app-error').style.display = 'none';
+            document.getElementById('app-working').style.display = 'none';
+            document.getElementById('app-success').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
