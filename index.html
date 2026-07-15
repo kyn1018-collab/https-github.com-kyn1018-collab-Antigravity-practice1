@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>antigravity 실습</title>
+    <title>Antigravity 실습</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -83,7 +83,7 @@
         }
 
         .logo-title h1 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 800;
             background: linear-gradient(to right, #ffffff, #06b6d4);
             -webkit-background-clip: text;
@@ -806,7 +806,7 @@
         <div class="logo-area">
             <div class="logo-icon">AG</div>
             <div class="logo-title">
-                <h1>antigravity 실습</h1>
+                <h1>Antigravity 실습</h1>
                 <p>교사를 위한 인공지능 협업 개발 실습</p>
             </div>
         </div>
@@ -848,9 +848,9 @@
                         <div class="step-indicator">1</div>
                         <div class="step-content">
                             <div class="step-title">기획 도면 전달하기 (로컬 파일 참조)</div>
-                            <div class="step-desc">내 컴퓨터 내 문서 파일을 찾아 정보를 가져오게 하고, 초기 기획안을 AI에게 입력합니다.</div>
+                            <div class="step-desc">내 컴퓨터 내 <strong>C:\대학원\학생명단.txt</strong> 파일을 AI가 직접 찾아 학생 정보를 참조하게 하고, 초기 기획안을 AI에게 입력합니다.</div>
                             <div class="step-action-box">
-                                <div class="code-snippet" id="prompt-1">"내 컴퓨터 C:\대학원\학생명단.txt 파일에서 명단을 참조해서 기본값으로 채워주고, 교실에서 사용할 '학급 랜덤 발표자 뽑기' 웹앱을 만들어줘. 이름 입력란, 당첨자 영역, 뽑기 버튼이 깔끔하게 정렬된 인터페이스여야 해."</div>
+                                <div class="code-snippet" id="prompt-1">로컬 파일인 C:\대학원\학생명단.txt를 찾아 학생 정보를 참조해서 기본값으로 채워주고, 교실에서 사용할 '학급 랜덤 발표자 뽑기' 웹앱을 만들어줘. 이름 입력란에 학생 명단이 자동으로 들어가고, 당첨자 영역과 뽑기 버튼이 깔끔하게 정렬된 인터페이스여야 해.</div>
                                 <button class="btn-copy" onclick="copyText('prompt-1')">📋 프롬프트 복사</button>
                             </div>
                         </div>
@@ -956,7 +956,7 @@
   at HTMLButtonElement.onclick (index.html:42:15)</pre>
                             <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">코드 실행 중 예기치 못한 크리티컬 버그가 발생했습니다.</p>
                             <div style="display: flex; gap: 0.5rem;">
-                                <button class="btn-action" onclick="copyErrorText()">📋 에러 코드 복사하기</button>
+                                <button class="btn-action" onclick="sendErrorToAgent()">📋 AI에게 에러 전송하기</button>
                             </div>
                         </div>
 
@@ -1015,6 +1015,15 @@
             alert("채팅창에 에러 해결 요청 프롬프트가 자동으로 준비되었습니다! 전송 버튼을 눌러 전송하세요.");
         }
 
+        // Step 2: 에러 버튼 클릭 시 AI에게 직접 에러를 전송 (진행 불가 버그 수정)
+        function sendErrorToAgent() {
+            const errorText = document.getElementById('error-log').innerText;
+            const message = `이 에러가 나는데 고쳐줘:\n${errorText}`;
+            appendMessage('user', message);
+            chatInput.value = '';
+            setTimeout(() => processStep(message), 1000);
+        }
+
         function handleSendMessage() {
             const userText = chatInput.value.trim();
             if (!userText) return;
@@ -1028,9 +1037,20 @@
             }, 1000);
         }
 
+        function updateStep(step) {
+            currentStep = step;
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}-indicator`);
+                el.classList.remove('active', 'completed');
+                if (i < step) el.classList.add('completed');
+            }
+            const cur = document.getElementById(`step-${step}-indicator`);
+            if (cur) cur.classList.add('active');
+        }
+
         function processStep(userInput) {
             if (currentStep === 1) {
-                if (userInput.includes("학생명단.txt") || userInput.includes("학급 랜덤 발표자") || userInput.includes("만들어줘")) {
+                if (userInput.includes("학생명단") || userInput.includes("학급 랜덤 발표자") || userInput.includes("만들어줘") || userInput.includes("로컬 파일")) {
                     appendMessage('agent', `알겠습니다! 로컬 파일 <code>C:\\대학원\\학생명단.txt</code>를 탐색하여 학생 목록(김민수, 이영희, 박지민 등)을 성공적으로 읽어왔습니다.<br><br>이를 기본값으로 채우고 요청하신 <strong>'학급 랜덤 발표자 뽑기'</strong> 웹앱을 빌드하겠습니다.<br><pre>Reading files from C:\\대학원\\학생명단.txt...\nCreating index.html...\nCreating app.js...\nRunning local dev server...</pre>`);
                     
                     // Show error state inside browser preview (Step 2 triggering)
@@ -1047,7 +1067,7 @@
                 }
             } 
             else if (currentStep === 2) {
-                if (userInput.includes("TypeError") || userInput.includes("error-log") || userInput.includes("고쳐줘")) {
+                if (userInput.includes("TypeError") || userInput.includes("error-log") || userInput.includes("고쳐줘") || userInput.includes("에러") || userInput.includes("split")) {
                     appendMessage('agent', `에러가 확인되었습니다! 원인을 분석했습니다. <br><code>app.js</code>의 24번째 라인에서 빈 명단을 쪼개는 과정(split)에서 null 체크 예외처리가 빠져 있었습니다. 즉시 수정하겠습니다. <br><pre>Modified app.js - Line 24\nFixed: studentList = inputVal ? inputVal.split(',') : [];</pre> 수정이 완료되었습니다! 프리뷰를 확인해 보세요.`);
                     
                     document.getElementById('app-error').style.display = 'none';
