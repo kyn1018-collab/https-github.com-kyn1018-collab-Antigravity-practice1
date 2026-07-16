@@ -3,1154 +3,645 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antigravity 실습</title>
+    <title>🎉 신나는 학급 발표자 추첨기 🎉</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas-Confetti CDN (축하 불꽃 효과) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- PDF.js CDN (로컬 PDF 실시간 파싱용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- Google Fonts 연동 (둥글둥글하고 가독성 좋은 폰트) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Round:wght@400;700;800&family=Jua&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            --bg-color: #0b0f19;
-            --panel-bg: rgba(20, 27, 45, 0.7);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --primary: #4f46e5;
-            --primary-glow: rgba(79, 70, 229, 0.4);
-            --secondary: #06b6d4;
-            --secondary-glow: rgba(6, 182, 212, 0.4);
-            --accent: #ec4899;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --success: #10b981;
-            --error: #ef4444;
-            --font-display: 'Outfit', 'Noto Sans KR', sans-serif;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            background-color: var(--bg-color);
+            font-family: 'Nanum Square Round', 'Jua', sans-serif;
+            background-color: #f0fdf4; /* 연한 초록/민트 톤 교실 느낌 */
             background-image: 
-                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.15) 0px, transparent 50%);
-            color: var(--text-main);
-            font-family: var(--font-display);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
+                radial-gradient(at 0% 0%, #e0f2fe 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #fef08a 0px, transparent 50%);
+        }
+        
+        /* 칠판/에듀테크 느낌의 미세 애니메이션 및 컴포넌트 커스텀 */
+        .neon-border {
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+        }
+        
+        .slot-container {
+            perspective: 1000px;
         }
 
-        /* Header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            background: rgba(11, 15, 25, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        .slot-card {
+            transition: transform 0.1s ease-out;
         }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        /* 3D 버튼 효과 */
+        .btn-3d {
+            transform: translateY(0);
+            transition: all 0.1s ease;
+            box-shadow: 0 8px 0px #16a34a, 0 15px 20px rgba(0, 0, 0, 0.15);
         }
-
-        .logo-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.25rem;
-            box-shadow: 0 0 15px var(--primary-glow);
-            animation: float 3s ease-in-out infinite;
+        .btn-3d:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0px #16a34a, 0 8px 10px rgba(0, 0, 0, 0.1);
         }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        .logo-title h1 {
-            font-size: 1.3rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #ffffff, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo-title p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .badge {
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            color: var(--secondary);
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* Layout */
-        .container {
-            display: grid;
-            grid-template-columns: 440px 1fr;
-            flex: 1;
-            height: calc(100vh - 73px);
-        }
-
-        /* Sidebar - Guides & Steps */
-        .sidebar {
-            background: var(--panel-bg);
-            border-right: 1px solid var(--border-color);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            overflow-y: auto;
-        }
-
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        .section-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .section-title::before {
-            content: '';
-            display: inline-block;
-            width: 4px;
-            height: 1rem;
-            background: var(--secondary);
-            border-radius: 2px;
-        }
-
-        /* Strategy Cards */
-        .strategy-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .strategy-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 0.85rem 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .strategy-card:hover {
-            border-color: rgba(6, 182, 212, 0.3);
-            background: rgba(6, 182, 212, 0.02);
-        }
-
-        .strategy-card h3 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .strategy-number {
-            font-size: 0.75rem;
-            background: var(--primary);
-            width: 1.25rem;
-            height: 1.25rem;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .strategy-card p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        /* Mission Tracker */
-        .mission-panel {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.25rem;
-        }
-
-        .mission-step {
-            display: flex;
-            gap: 1rem;
-            position: relative;
-            padding-bottom: 1.5rem;
-        }
-
-        .mission-step:last-child {
-            padding-bottom: 0;
-        }
-
-        .mission-step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 14px;
-            top: 30px;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-color);
-            z-index: 1;
-        }
-
-        .mission-step.active:not(:last-child)::after {
-            background: linear-gradient(to bottom, var(--primary), var(--border-color));
-        }
-
-        .mission-step.completed:not(:last-child)::after {
-            background: var(--success);
-        }
-
-        .step-indicator {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-            flex-shrink: 0;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .mission-step.active .step-indicator {
-            border-color: var(--primary);
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
-
-        .mission-step.completed .step-indicator {
-            border-color: var(--success);
-            background: var(--success);
-            color: white;
-        }
-
-        .step-content {
-            flex: 1;
-            padding-top: 2px;
-        }
-
-        .step-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .step-desc {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-            margin-bottom: 0.5rem;
-        }
-
-        .step-action-box {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px dashed var(--border-color);
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
-
-        .mission-step.active .step-action-box {
-            display: block;
-            border-color: rgba(79, 70, 229, 0.4);
-        }
-
-        .code-snippet {
-            font-family: monospace;
-            font-size: 0.75rem;
-            color: var(--secondary);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            margin-bottom: 0.5rem;
-            white-space: pre-wrap;
-            word-break: break-all;
-            user-select: all;
-        }
-
-        .btn-copy {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.35rem 0.75rem;
-            border-radius: 0.35rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            transition: background 0.2s;
-        }
-
-        .btn-copy:hover {
-            background: #4338ca;
-        }
-
-        /* Workspace Grid (Main Area) */
-        .workspace {
-            display: grid;
-            grid-template-rows: 1fr 1fr;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        @media (min-width: 1200px) {
-            .workspace {
-                grid-template-rows: none;
-                grid-template-columns: 460px 1fr;
-            }
-        }
-
-        /* Agent Chat Panel */
-        .chat-panel {
-            background: rgba(15, 22, 38, 0.5);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .panel-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(15, 22, 38, 0.8);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-dot {
+        
+        /* 커스텀 스크롤바 */
+        ::-webkit-scrollbar {
             width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            box-shadow: 0 0 8px var(--success);
         }
-
-        .chat-history {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 9999px;
         }
-
-        .chat-history::-webkit-scrollbar {
-            width: 6px;
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
         }
-
-        .chat-history::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        .chat-bubble {
-            max-width: 85%;
-            padding: 0.85rem 1rem;
-            border-radius: 1rem;
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-
-        .chat-bubble.user {
-            background: var(--primary);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 0.25rem;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
-        }
-
-        .chat-bubble.agent {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            align-self: flex-start;
-            border-bottom-left-radius: 0.25rem;
-        }
-
-        .chat-bubble.agent pre {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 0.5rem;
-            border-radius: 0.35rem;
-            font-family: monospace;
-            font-size: 0.75rem;
-            overflow-x: auto;
-            margin-top: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .chat-input-area {
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-            background: rgba(15, 22, 38, 0.9);
-        }
-
-        .chat-input-wrapper {
-            display: flex;
-            gap: 0.5rem;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 0.5rem;
-        }
-
-        .chat-input-wrapper:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary-glow);
-        }
-
-        .chat-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 0.85rem;
-            outline: none;
-            padding: 0.25rem 0.5rem;
-            resize: none;
-            height: 36px;
-        }
-
-        .btn-send {
-            background: var(--primary);
-            border: none;
-            color: white;
-            border-radius: 0.5rem;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-send:hover {
-            background: #4338ca;
-        }
-
-        /* Preview Panel */
-        .preview-panel {
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .browser-frame {
-            background: #1e293b;
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .browser-header {
-            background: #0f172a;
-            padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .browser-dots {
-            display: flex;
-            gap: 0.35rem;
-        }
-
-        .browser-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        .browser-dot.red { background: #ef4444; }
-        .browser-dot.yellow { background: #f59e0b; }
-        .browser-dot.green { background: #10b981; }
-
-        .browser-address-bar {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 0.35rem;
-            padding: 0.25rem 1rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .browser-content {
-            flex: 1;
-            background: #ffffff;
-            color: #1e293b;
-            position: relative;
-            overflow-y: auto;
-        }
-
-        /* Virtual Application UI (Inside Sandbox Browser) */
-        .sandbox-app {
-            padding: 2rem;
-            font-family: sans-serif;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .sandbox-app.empty {
-            color: #94a3b8;
-        }
-
-        .sandbox-app.empty svg {
-            width: 4rem;
-            height: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.3;
-        }
-
-        /* The Live App simulated state */
-        .picker-app-container {
-            width: 100%;
-            max-width: 450px;
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-            color: #334155;
-            text-align: left;
-        }
-
-        .picker-app-container.custom-theme {
-            background: #0f172a;
-            color: #f8fafc;
-            border-color: #38bdf8;
-            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
-        }
-
-        .picker-title {
-            font-size: 1.25rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            color: #1e293b;
-            text-align: center;
-            transition: color 0.3s;
-        }
-
-        .picker-app-container.custom-theme .picker-title {
-            color: #38bdf8;
-        }
-
-        .picker-box {
-            background: #ffffff;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 2rem 1rem;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: #64748b;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .picker-app-container.custom-theme .picker-box {
-            background: #1e293b;
-            border-color: #475569;
-            color: #94a3b8;
-        }
-
-        .picker-app-container.custom-theme .picker-box.highlight {
-            color: #38bdf8;
-            border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.1);
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-            animation: pulse-glow 0.5s infinite alternate;
-        }
-
-        @keyframes pulse-glow {
-            from { box-shadow: 0 0 5px rgba(56, 189, 248, 0.2); }
-            to { box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
-        }
-
-        .picker-input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            font-size: 0.85rem;
-        }
-
-        .picker-app-container.custom-theme .picker-input {
-            background: #1e293b;
-            border-color: #475569;
-            color: #f8fafc;
-        }
-
-        .picker-btn {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
-        }
-
-        .picker-btn:hover {
-            background: #4338ca;
-        }
-
-        .picker-app-container.custom-theme .picker-btn {
-            background: #38bdf8;
-            color: #0f172a;
-        }
-
-        .picker-app-container.custom-theme .picker-btn:hover {
-            background: #0ea5e9;
-        }
-
-        /* Error Overlay inside iframe */
-        .error-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #1e1b4b;
-            color: #fecaca;
-            font-family: monospace;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            z-index: 10;
-        }
-
-        .error-overlay h2 {
-            color: #fca5a5;
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .error-overlay pre {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            width: 100%;
-            overflow-x: auto;
-            font-size: 0.8rem;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-action {
-            background: var(--accent);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn-action:hover {
-            opacity: 0.9;
-        }
-
-        /* Modal / Success Confetti */
-        .success-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 23, 42, 0.95);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            text-align: center;
-            padding: 2rem;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .success-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes pop {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
-
-        .success-overlay h2 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #38bdf8, #10b981);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .success-overlay p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .container {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-            .workspace {
-                grid-template-columns: 1fr;
-                height: 800px;
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 antialiased overflow-x-hidden">
 
-    <header>
-        <div class="logo-area">
-            <div class="logo-icon">AG</div>
-            <div class="logo-title">
-                <h1>Antigravity 실습</h1>
-                <p>교사를 위한 인공지능 협업 개발 실습</p>
+    <!-- 상단 헤더 -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-green-100 py-4 px-6 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center gap-3">
+            <span class="text-3xl">🏫</span>
+            <div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-green-700 tracking-tight flex items-center gap-2">
+                    교실 전자칠판용 <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded-lg text-sm md:text-base">발표자 뽑기</span>
+                </h1>
+                <p class="text-xs text-slate-500 hidden md:block">초등 교실 맞춤형 스마트 추첨 시스템</p>
             </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <span class="badge">실습 전략 체험관</span>
+        
+        <!-- 사운드 및 테마 컨트롤 -->
+        <div class="flex items-center gap-4">
+            <button id="soundToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors text-sm font-bold text-slate-700">
+                <span id="soundIcon">🔊</span> <span id="soundText" class="hidden sm:inline">소리 켬</span>
+            </button>
+            <div class="text-xs text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200/60">
+                현재 날짜: <span class="font-mono text-slate-600">2026-07-16</span>
+            </div>
         </div>
     </header>
 
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
+    <!-- 메인 레이아웃 -->
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        
+        <!-- 좌측: 설정 및 명단 카드 (4 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            <!-- 명단 입력 & 설정 카드 -->
+            <div class="bg-white rounded-3xl p-6 shadow-xl border border-slate-100 flex flex-col flex-grow justify-between gap-4">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <label for="studentList" class="text-lg font-extrabold text-slate-700 flex items-center gap-2">
+                            <span>👥</span> 학생 명단 입력 <span id="studentCount" class="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">0명</span>
+                        </label>
+                        <!-- PDF 업로드 버튼 -->
+                        <label class="cursor-pointer text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200 transition-colors flex items-center gap-1">
+                            📄 PDF로 불러오기
+                            <input type="file" id="pdfFileInput" accept=".pdf" class="hidden">
+                        </label>
+                    </div>
+                    
+                    <p class="text-xs text-slate-400 mb-2 leading-relaxed">
+                        * 학생 이름은 <strong>줄바꿈(Enter)</strong> 기준으로 구분하여 입력해주세요.
+                    </p>
+                    
+                    <!-- 명단 텍스트 영역 -->
+                    <textarea id="studentList" rows="12" class="w-full p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent font-mono text-slate-700 resize-none leading-relaxed transition-all shadow-inner bg-slate-50" placeholder="여기에 학생 이름을 입력하거나 PDF 파일을 불러오세요."></textarea>
+                </div>
 
-            <div>
-                <div class="section-title">미션 진행 현황</div>
-                <div class="mission-panel">
-                    <!-- Step 1 -->
-                    <div class="mission-step active" id="step-1-indicator">
-                        <div class="step-indicator">1</div>
-                        <div class="step-content">
-                            <div class="step-title">기획 도면 전달하기 (로컬 파일 참조)</div>
-                            <div class="step-desc">내 컴퓨터 내 <strong>C:\대학원\학생명단.txt</strong> 파일을 AI가 직접 찾아 학생 정보를 참조하게 하고, 초기 기획안을 AI에게 입력합니다.</div>
-                            <div class="step-action-box">
-                                <div class="code-snippet" id="prompt-1">로컬 파일인 C:\대학원\학생명단.txt를 찾아 학생 정보를 참조해서 기본값으로 채워주고, 교실에서 사용할 '학급 랜덤 발표자 뽑기' 웹앱을 만들어줘. 이름 입력란에 학생 명단이 자동으로 들어가고, 당첨자 영역과 뽑기 버튼이 깔끔하게 정렬된 인터페이스여야 해.</div>
-                                <button class="btn-copy" onclick="copyText('prompt-1')">📋 프롬프트 복사</button>
-                            </div>
-                        </div>
+                <!-- 설정 옵션 -->
+                <div class="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                            ⚙️ 옵션 설정
+                        </span>
                     </div>
-                    <!-- Step 2 -->
-                    <div class="mission-step" id="step-2-indicator">
-                        <div class="step-indicator">2</div>
-                        <div class="step-content">
-                            <div class="step-title">발생한 오류를 AI에게 제보하기</div>
-                            <div class="step-desc">웹앱 화면에 오류가 발생했습니다. 에러 로그를 복사하여 AI에게 전달하세요.</div>
-                            <div class="step-action-box">
-                                <button class="btn-copy" onclick="copyErrorAndNotify()">📋 에러 복사 및 AI 제보 준비</button>
-                            </div>
+                    
+                    <!-- 중복 제외 체크박스 -->
+                    <label class="flex items-center gap-3 cursor-pointer p-1 group">
+                        <div class="relative">
+                            <input type="checkbox" id="excludePicked" class="sr-only peer" checked>
+                            <div class="w-10 h-6 bg-slate-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-green-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                         </div>
-                    </div>
-                    <!-- Step 3 -->
-                    <div class="mission-step" id="step-3-indicator">
-                        <div class="step-indicator">3</div>
-                        <div class="step-content">
-                            <div class="step-title">나만의 맞춤형 커스텀 수행하기</div>
-                            <div class="step-desc">앱 디자인과 타이틀을 내 입맛에 맞게 꾸며달라고 AI에게 지시합니다.</div>
-                            <div class="step-action-box">
-                                <div class="code-snippet" id="prompt-3">"디자인을 다크 모드의 세련된 네온 블루 테마로 바꾸고, 당첨 카드가 강조될 때 반짝이는 애니메이션 효과를 줘. 그리고 타이틀도 '우리 학교 랜덤 뽑기'로 수정해줘."</div>
-                                <button class="btn-copy" onclick="copyText('prompt-3')">📋 요구사항 복사</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Step 4 -->
-                    <div class="mission-step" id="step-4-indicator">
-                        <div class="step-indicator">4</div>
-                        <div class="step-content">
-                            <div class="step-title">깃허브 푸시 및 Pages 출판</div>
-                            <div class="step-desc">실습 포털 배포 명령을 내려 깃허브 원격 저장소에 업로드하고 실제 주소로 배포를 요청합니다.</div>
-                            <div class="step-action-box">
-                                <div class="code-snippet" id="prompt-4">"웹앱이 완료되면 브라우저에서 직접 실행해보면서 오류를 수정해줘. 그리고 github(https://github.com/kyn1018-collab/practice.git)로 푸쉬해주고 githubpage에서 출판까지 완료해줘."</div>
-                                <button class="btn-copy" onclick="copyText('prompt-4')">📋 배포 프롬프트 복사</button>
-                            </div>
-                        </div>
-                    </div>
+                        <span class="text-sm font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">이미 뽑힌 학생 제외하기</span>
+                    </label>
                 </div>
-            </div>
-        </div>
 
-        <!-- Main Workspace -->
-        <div class="workspace">
-            <!-- Chat Panel -->
-            <div class="chat-panel">
-                <div class="panel-header">
-                    <div class="panel-title">
-                        <div class="status-dot"></div>
-                        Antigravity AI Assistant
-                    </div>
-                </div>
-                <div class="chat-history" id="chat-history">
-                    <div class="chat-bubble agent">
-                        안녕하세요! 선생님. Antigravity AI-Native 연수에 오신 것을 환영합니다. <br><br>
-                        왼쪽 미션 패널의 <strong>Step 1</strong>에 있는 기획 프롬프트를 복사하여 아래 채팅창에 <strong>[붙여넣기]</strong>하고 전송해 보세요!
-                    </div>
-                </div>
-                <div class="chat-input-area">
-                    <div class="chat-input-wrapper">
-                        <textarea class="chat-input" id="chat-input" placeholder="여기에 프롬프트를 붙여넣으세요..."></textarea>
-                        <button class="btn-send" onclick="handleSendMessage()">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
+                <!-- 뽑힌 명단 현황 및 리셋 -->
+                <div class="border-t border-slate-100 pt-4 flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-bold text-slate-600 flex items-center gap-1.5">
+                            📌 대기: <span id="remainCount" class="text-blue-600">0</span> / 뽑힘: <span id="pickedCount" class="text-red-500">0</span>
+                        </span>
+                        <button id="resetPicked" class="text-xs font-semibold text-red-500 hover:text-white bg-red-50 hover:bg-red-500 px-3 py-1.5 rounded-xl border border-red-200 hover:border-transparent transition-all">
+                            추첨 기록 초기화
                         </button>
                     </div>
-                </div>
-            </div>
-
-            <!-- Preview Panel -->
-            <div class="preview-panel">
-                <div class="browser-frame">
-                    <div class="browser-header">
-                        <div class="browser-dots">
-                            <div class="browser-dot red"></div>
-                            <div class="browser-dot yellow"></div>
-                            <div class="browser-dot green"></div>
-                        </div>
-                        <div class="browser-address-bar">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                            <span>http://localhost:5173/</span>
-                        </div>
-                    </div>
-                    <div class="browser-content" id="browser-content">
-                        <!-- Initial state -->
-                        <div class="sandbox-app empty" id="app-initial">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
-                                <line x1="12" y1="8" x2="12" y2="16"></line>
-                            </svg>
-                            <p>아직 빌드된 애플리케이션이 없습니다.<br>AI에게 기획 명령을 내리면 빌드가 시작됩니다.</p>
-                        </div>
-
-                        <!-- App Step 1 (With Bug) -->
-                        <div class="error-overlay" id="app-error" style="display: none;">
-                            <h2>⚠️ Application Runtime Error</h2>
-                            <pre id="error-log">TypeError: Cannot read properties of undefined (reading 'split')
-  at initStudentList (app.js:24:32)
-  at HTMLButtonElement.onclick (index.html:42:15)</pre>
-                            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">코드 실행 중 예기치 못한 크리티컬 버그가 발생했습니다.</p>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button class="btn-action" onclick="sendErrorToAgent()">📋 AI에게 에러 전송하기</button>
-                            </div>
-                        </div>
-
-                        <!-- App Step 2 & 3 (Working Application) -->
-                        <div class="sandbox-app" id="app-working" style="display: none;">
-                            <div class="picker-app-container" id="picker-container">
-                                <div class="picker-title" id="picker-title">학급 랜덤 발표자 뽑기</div>
-                                <div class="picker-box" id="picker-box">?</div>
-                                <input type="text" class="picker-input" id="student-names" value="김민수, 이영희, 박지민, 최수현, 정우진, 강다은">
-                                <button class="picker-btn" onclick="startPicking()">🎉 발표자 뽑기</button>
-                            </div>
-                        </div>
-
-                        <!-- Success Portal -->
-                        <div class="success-overlay" id="app-success" style="display: none;">
-                            <div class="success-icon">🚀</div>
-                            <h2>GitHub Pages 실시간 출판 완료!</h2>
-                            <p>축하합니다! 성공적으로 모든 코드를 수정하고<br>지정한 깃허브 저장소로 업로드 후 Pages 사이트로 실시간 출판했습니다.</p>
-                            <button class="btn-action" style="background: var(--success);" onclick="resetTutorial()">처음부터 다시 실습하기</button>
-                        </div>
+                    
+                    <!-- 뽑힌 학생 배지 리스트 -->
+                    <div id="pickedListContainer" class="flex flex-wrap gap-1.5 max-h-[85px] overflow-y-auto p-2 bg-slate-50 border border-slate-200/50 rounded-xl">
+                        <span class="text-xs text-slate-400 italic">아직 뽑힌 학생이 없습니다.</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
+        
+        <!-- 우측: 메인 슬롯머신 및 당첨자 화면 (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-6 justify-between">
+            <!-- 대형 당첨자 스크린 -->
+            <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 flex flex-col justify-center items-center flex-grow relative overflow-hidden neon-border min-h-[400px]">
+                
+                <!-- 물감 튀김 데코레이션 배경 -->
+                <div class="absolute -top-12 -left-12 w-48 h-48 bg-green-100/40 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-yellow-100/40 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <!-- 추첨 카운트다운/현황 띠 -->
+                <div class="absolute top-4 left-4 bg-green-50 text-green-700 border border-green-200 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">
+                    ✨ 대기명단: <span id="screenRemainCount">0</span>명
+                </div>
+                
+                <!-- 슬롯머신 화면 영역 -->
+                <div class="slot-container w-full max-w-md bg-slate-900 border-4 border-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 flex flex-col items-center justify-center relative overflow-hidden h-72">
+                    <!-- LED 전구 데코레이션 효과 (좌우 양끝) -->
+                    <div class="absolute top-0 bottom-0 left-2 flex flex-col justify-around py-4">
+                        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-ping"></div>
+                        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full"></div>
+                        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-ping"></div>
+                    </div>
+                    <div class="absolute top-0 bottom-0 right-2 flex flex-col justify-around py-4">
+                        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-ping"></div>
+                        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full"></div>
+                        <div class="w-2.5 h-2.5 bg-yellow-400 rounded-full animate-ping"></div>
+                    </div>
 
+                    <!-- 당첨 안내 텍스트 -->
+                    <div id="statusLabel" class="text-sm font-semibold text-green-400 uppercase tracking-widest mb-4 animate-pulse">
+                        추첨을 진행해주세요!
+                    </div>
+                    
+                    <!-- 롤링 슬롯 텍스트 (초대형 폰트 4rem 이상) -->
+                    <div class="h-28 overflow-hidden flex items-center justify-center w-full relative">
+                        <div id="slotCard" class="slot-card text-center text-white font-extrabold text-5xl md:text-7xl tracking-wide select-none drop-shadow-[0_4px_10px_rgba(255,255,255,0.2)]">
+                            ❓❓❓
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 최종 당첨자 팝업 강조용 데코 -->
+                <div id="winBadge" class="hidden transform scale-0 transition-transform duration-500 ease-out mt-6 bg-yellow-100 text-yellow-800 border-2 border-yellow-300 font-extrabold px-6 py-2.5 rounded-full text-lg shadow-md animate-bounce flex items-center gap-2">
+                    🌟 오늘의 주인공! 🌟
+                </div>
+            </div>
+
+            <!-- 대형 3D 뽑기 버튼 -->
+            <button id="drawButton" class="btn-3d w-full py-6 md:py-8 rounded-3xl bg-green-500 hover:bg-green-400 text-white font-extrabold text-3xl md:text-4xl tracking-widest transition-all focus:outline-none flex items-center justify-center gap-4 select-none">
+                <span>🎯</span> 발표자 뽑기!
+            </button>
+        </section>
+
+    </main>
+
+    <!-- 푸터 정보 -->
+    <footer class="bg-white/60 border-t border-slate-100 py-3 text-center text-xs text-slate-400">
+        <div>© 2026 초등 에듀테크 발표자 추첨기 | Single-file Web Application</div>
+    </footer>
+
+    <!-- Vanilla JS 로직 분리 -->
     <script>
-        let currentStep = 1;
-        const chatHistory = document.getElementById('chat-history');
-        const chatInput = document.getElementById('chat-input');
+        // PDF.js 글로벌 워커 설정
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        function appendMessage(sender, text) {
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${sender}`;
-            bubble.innerHTML = text;
-            chatHistory.appendChild(bubble);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
+        // 1. PDF 파싱 실패 시 대체할 20명의 기본 예시 명단
+        const DEFAULT_STUDENTS = [
+            "김고은", "전지현", "조보아", "김희애", "한지민",
+            "아이유", "설인아", "신세경", "김희선", "박신혜",
+            "변우석", "박보검", "공유", "남주혁", "강동원",
+            "박서준", "이정재", "정우성", "송강", "지창욱"
+        ];
 
-        function copyText(elementId) {
-            const text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text);
-            alert("클립보드에 프롬프트가 복사되었습니다! 채팅 입력창에 붙여넣기(Ctrl+V) 해보세요.");
-        }
+        // 2. 사전에 PDF 파싱으로 알아낸 35명의 명단 (최우선 탑재)
+        const INITIAL_STUDENTS = [
+            "김고은", "전지현", "조보아", "김희애", "한지민",
+            "아이유", "설인아", "신세경", "김희선", "박신혜",
+            "변우석", "박보검", "공유", "남주혁", "강동원",
+            "박서준", "이정재", "정우성", "송강", "지창욱",
+            "아이린", "김유정", "김태리", "이영애", "장윤정",
+            "배수지", "송혜교", "한소희", "김태희", "이민정",
+            "공효진", "이준혁", "차은우", "정국", "이동욱"
+        ];
 
-        function copyErrorText() {
-            const errorText = document.getElementById('error-log').innerText;
-            navigator.clipboard.writeText(errorText);
-            alert("에러 로그가 복사되었습니다! 이제 AI 비서에게 그대로 보내서 버그 해결을 요구해 보세요.");
-        }
-
-        function copyErrorAndNotify() {
-            const errorText = document.getElementById('error-log').innerText;
-            navigator.clipboard.writeText(errorText);
-            chatInput.value = `이 에러가 나는데 고쳐줘:\n${errorText}`;
-            alert("채팅창에 에러 해결 요청 프롬프트가 자동으로 준비되었습니다! 전송 버튼을 눌러 전송하세요.");
-        }
-
-        // Step 2: 에러 버튼 클릭 시 AI에게 직접 에러를 전송 (진행 불가 버그 수정)
-        function sendErrorToAgent() {
-            const errorText = document.getElementById('error-log').innerText;
-            const message = `이 에러가 나는데 고쳐줘:\n${errorText}`;
-            appendMessage('user', message);
-            chatInput.value = '';
-            setTimeout(() => processStep(message), 1000);
-        }
-
-        function handleSendMessage() {
-            const userText = chatInput.value.trim();
-            if (!userText) return;
-
-            appendMessage('user', userText);
-            chatInput.value = '';
-
-            // Loading state simulator
-            setTimeout(() => {
-                processStep(userText);
-            }, 1000);
-        }
-
-        function updateStep(step) {
-            currentStep = step;
-            for (let i = 1; i <= 4; i++) {
-                const el = document.getElementById(`step-${i}-indicator`);
-                el.classList.remove('active', 'completed');
-                if (i < step) el.classList.add('completed');
+        // 3. Web Audio API 기반 오디오 제어 클래스 (무설치 구동)
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
             }
-            const cur = document.getElementById(`step-${step}-indicator`);
-            if (cur) cur.classList.add('active');
-        }
 
-        function processStep(userInput) {
-            if (currentStep === 1) {
-                if (userInput.includes("학생명단") || userInput.includes("학급 랜덤 발표자") || userInput.includes("만들어줘") || userInput.includes("로컬 파일")) {
-                    appendMessage('agent', `알겠습니다! 로컬 파일 <code>C:\\대학원\\학생명단.txt</code>를 탐색하여 학생 목록(김민수, 이영희, 박지민 등)을 성공적으로 읽어왔습니다.<br><br>이를 기본값으로 채우고 요청하신 <strong>'학급 랜덤 발표자 뽑기'</strong> 웹앱을 빌드하겠습니다.<br><pre>Reading files from C:\\대학원\\학생명단.txt...\nCreating index.html...\nCreating app.js...\nRunning local dev server...</pre>`);
-                    
-                    // Show error state inside browser preview (Step 2 triggering)
-                    setTimeout(() => {
-                        document.getElementById('app-initial').style.display = 'none';
-                        document.getElementById('app-error').style.display = 'flex';
-                        
-                        appendMessage('agent', `⚠️ <strong>런타임 에러 경고:</strong> 앱 실행 중 오류가 발견되었습니다. 브라우저 프리뷰 화면을 확인하고, <strong>에러 로그를 복사(Copy)해서 저에게 그대로 전달(Paste)</strong>해 주세요.`);
-                        
-                        updateStep(2);
-                    }, 1500);
-                } else {
-                    appendMessage('agent', `Step 1에서는 학생 명단 파일을 참조하여 학급 발표기 웹앱을 기획하는 프롬프트가 필요합니다. 미션 가이드에 있는 복사 버튼을 눌러 채팅창에 붙여넣고 전송해 주세요.`);
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 }
-            } 
-            else if (currentStep === 2) {
-                if (userInput.includes("TypeError") || userInput.includes("error-log") || userInput.includes("고쳐줘") || userInput.includes("에러") || userInput.includes("split")) {
-                    appendMessage('agent', `에러가 확인되었습니다! 원인을 분석했습니다. <br><code>app.js</code>의 24번째 라인에서 빈 명단을 쪼개는 과정(split)에서 null 체크 예외처리가 빠져 있었습니다. 즉시 수정하겠습니다. <br><pre>Modified app.js - Line 24\nFixed: studentList = inputVal ? inputVal.split(',') : [];</pre> 수정이 완료되었습니다! 프리뷰를 확인해 보세요.`);
-                    
-                    document.getElementById('app-error').style.display = 'none';
-                    document.getElementById('app-working').style.display = 'flex';
-                    
-                    setTimeout(() => {
-                        appendMessage('agent', `성공적으로 작동합니다! 이제 <strong>Step 3: 마이크로 커스터마이징</strong> 단계입니다. 미션 가이드에서 원하는 디자인 테마 변경 요구사항을 복사하여 저에게 지시해 보세요.`);
-                        updateStep(3);
-                    }, 1000);
-                } else {
-                    appendMessage('agent', `감지된 에러 메시지를 알려주시면 코드를 즉시 디버깅하여 고칠 수 있습니다. 에러 복사 버튼을 사용해 보세요.`);
-                }
-            } 
-            else if (currentStep === 3) {
-                if (userInput.includes("네온 블루") || userInput.includes("다크 모드") || userInput.includes("우리 학교")) {
-                    appendMessage('agent', `선생님의 요청에 맞춰 커스텀 스타일 및 타이틀을 업데이트합니다.<br><pre>Updating index.css...\nChanging title to "우리 학교 랜덤 뽑기"...\nApplying Neon Blue Theme...</pre> 업데이트 완료!`);
-                    
-                    // Custom theme apply
-                    const container = document.getElementById('picker-container');
-                    container.classList.add('custom-theme');
-                    document.getElementById('picker-title').innerText = "우리 학교 랜덤 뽑기";
-                    
-                    setTimeout(() => {
-                        appendMessage('agent', `디자인 변경이 완료되었습니다. 내장 브라우저에서 아름다운 다크 네온 블루 UI를 확인하세요. <br><br>이제 마지막 <strong>Step 4: 배포 요청</strong> 단계입니다. 미션 가이드 4단계의 배포 프롬프트를 복사하여 저에게 지시해 주세요.`);
-                        updateStep(4);
-                    }, 1000);
-                } else {
-                    appendMessage('agent', `배경색이나 타이틀 변경 지시를 내려보세요! 미션 가이드 3단계의 프롬프트를 참고하세요.`);
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
                 }
             }
-            else if (currentStep === 4) {
-                if (userInput.includes("practice.git") || userInput.includes("githubpage") || userInput.includes("푸쉬")) {
-                    appendMessage('agent', `프로젝트 소스 코드 전체를 지정하신 깃허브 원격 저장소에 업로드하고 최종 출판을 시작하겠습니다. <br><pre>git init\ngit add .\ngit commit -m "feat: publish training portal"\ngit remote add origin https://github.com/kyn1018-collab/practice.git\ngit push -u origin main --force</pre>`);
+
+            // 슬롯 롤링할 때 틱 소리
+            playTick() {
+                if (this.muted) return;
+                this.init();
+                
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
                     
-                    setTimeout(() => {
-                        appendMessage('agent', `🔄 **GitHub Pages 빌드 및 배포 대기 중:**<br><pre>GitHub Actions: Triggering deployment workflow...\nBuilding static files...\nUploading deployment artifact...\nDeploying to live environment: github-pages...</pre>`);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.04);
+                    
+                    gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+                    
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.04);
+                } catch(e) {
+                    console.error("사운드 재생 에러:", e);
+                }
+            }
+
+            // 당첨되었을 때 축하 멜로디
+            playWin() {
+                if (this.muted) return;
+                this.init();
+                
+                try {
+                    const now = this.ctx.currentTime;
+                    const playTone = (freq, start, duration, type='sine') => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
                         
-                        setTimeout(() => {
-                            document.getElementById('app-working').style.display = 'none';
-                            document.getElementById('app-success').style.display = 'flex';
-                            appendMessage('agent', `🎉 **GitHub Pages 최종 출판 완료!**<br>선생님의 웹앱이 다음 링크에서 지금 전 세계로 서비스 중입니다:<br><br><a href="https://kyn1018-collab.github.io/practice/" target="_blank" style="color: var(--secondary); font-weight: 800; text-decoration: underline; font-size: 1rem;">https://kyn1018-collab.github.io/practice/</a><br><br>마우스로 클릭해서 직접 라이브 앱을 사용하고 실습을 최종 확인해 보세요!`);
-                        }, 3000);
-                    }, 2000);
-                } else {
-                    appendMessage('agent', `배포를 시작하려면 미션 가이드 4단계의 깃허브 배포 요청 프롬프트를 복사하여 전송해 주세요.`);
+                        osc.type = type;
+                        osc.frequency.setValueAtTime(freq, start);
+                        
+                        gain.gain.setValueAtTime(0.12, start);
+                        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+                        
+                        osc.start(start);
+                        osc.stop(start + duration);
+                    };
+                    
+                    // 도 - 미 - 솔 - 도 경쾌한 아르페지오
+                    playTone(523.25, now, 0.12, 'triangle'); // C5
+                    playTone(659.25, now + 0.12, 0.12, 'triangle'); // E5
+                    playTone(783.99, now + 0.24, 0.12, 'triangle'); // G5
+                    playTone(1046.50, now + 0.36, 0.5, 'sine'); // C6
+                } catch(e) {
+                    console.error("사운드 재생 에러:", e);
                 }
             }
         }
 
-        // Live App Functionality (Inside simulated iframe)
-        let pickingInterval;
-        function startPicking() {
-            const namesInput = document.getElementById('student-names').value;
-            const names = namesInput.split(',').map(n => n.trim()).filter(n => n.length > 0);
+        const sound = new SoundEffects();
+
+        // 4. 앱 상태 관리
+        let students = []; // 현재 입력된 학생 배열
+        let pickedStudents = new Set(); // 이미 뽑힌 학생 목록
+        let isDrawing = false; // 현재 추첨 애니메이션 진행 중 여부
+
+        // DOM 엘리먼트 캐싱
+        const studentListTextarea = document.getElementById('studentList');
+        const studentCountBadge = document.getElementById('studentCount');
+        const remainCountLabel = document.getElementById('remainCount');
+        const pickedCountLabel = document.getElementById('pickedCount');
+        const screenRemainCountLabel = document.getElementById('screenRemainCount');
+        const pickedListContainer = document.getElementById('pickedListContainer');
+        const drawButton = document.getElementById('drawButton');
+        const slotCard = document.getElementById('slotCard');
+        const statusLabel = document.getElementById('statusLabel');
+        const winBadge = document.getElementById('winBadge');
+        const excludePickedCheckbox = document.getElementById('excludePicked');
+        const resetPickedButton = document.getElementById('resetPicked');
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        const soundToggleBtn = document.getElementById('soundToggle');
+        const soundIcon = document.getElementById('soundIcon');
+        const soundText = document.getElementById('soundText');
+
+        // 5. 기능 함수 정의
+
+        // 명단 데이터 동기화
+        function syncStudentsFromInput() {
+            const rawText = studentListTextarea.value;
+            students = rawText.split('\n')
+                .map(name => name.trim())
+                .filter(name => name.length > 0);
             
-            if (names.length === 0) {
-                alert("이름을 1개 이상 입력해 주세요!");
+            studentCountBadge.textContent = `${students.length}명`;
+            updateCounts();
+        }
+
+        // 수량 정보 및 화면 숫자 갱신
+        function updateCounts() {
+            let remain = students.length;
+            if (excludePickedCheckbox.checked) {
+                // 이미 뽑힌 명단 중 현재 존재하는 명단에 있는 것만 제외
+                const activePickedCount = Array.from(pickedStudents).filter(name => students.includes(name)).length;
+                remain = students.length - activePickedCount;
+            }
+            
+            remainCountLabel.textContent = Math.max(0, remain);
+            screenRemainCountLabel.textContent = Math.max(0, remain);
+            pickedCountLabel.textContent = pickedStudents.size;
+            
+            renderPickedBadges();
+        }
+
+        // 뽑힌 학생 배지 목록 렌더링
+        function renderPickedBadges() {
+            pickedListContainer.innerHTML = '';
+            if (pickedStudents.size === 0) {
+                pickedListContainer.innerHTML = '<span class="text-xs text-slate-400 italic">아직 뽑힌 학생이 없습니다.</span>';
                 return;
             }
 
-            const box = document.getElementById('picker-box');
-            box.classList.add('highlight');
-            
-            let count = 0;
-            clearInterval(pickingInterval);
-            pickingInterval = setInterval(() => {
-                const tempIndex = Math.floor(Math.random() * names.length);
-                box.innerText = names[tempIndex];
-                count++;
-                
-                if (count > 15) {
-                    clearInterval(pickingInterval);
-                    const finalIndex = Math.floor(Math.random() * names.length);
-                    box.innerText = names[finalIndex];
-                    box.style.fontSize = "2.5rem";
-                    box.style.color = "#38bdf8";
-                }
-            }, 100);
+            pickedStudents.forEach(name => {
+                const badge = document.createElement('span');
+                badge.className = "text-xs font-bold bg-red-50 text-red-600 border border-red-100 px-2 py-1 rounded-lg flex items-center gap-1 animate-fade-in";
+                badge.innerHTML = `${name} <button class="hover:text-red-800 focus:outline-none" onclick="removeSinglePicked('${name}')">×</button>`;
+                pickedListContainer.appendChild(badge);
+            });
         }
 
-        function resetTutorial() {
-            currentStep = 1;
-            updateStep(1);
-            chatHistory.innerHTML = `
-                <div class="chat-bubble agent">
-                    안녕하세요! 선생님. Antigravity AI-Native 연수에 오신 것을 환영합니다. <br><br>
-                    왼쪽 미션 패널의 <strong>Step 1</strong>에 있는 기획 프롬프트를 복사하여 아래 채팅창에 <strong>[붙여넣기]</strong>하고 전송해 보세요!
-                </div>
-            `;
+        // 특정 학생 한 명을 뽑힌 목록에서 다시 제거
+        window.removeSinglePicked = function(name) {
+            pickedStudents.delete(name);
+            updateCounts();
+            sound.playTick();
+        };
+
+        // PDF 텍스트에서 한글 학생 이름 추출 로직
+        function parseNamesFromText(text) {
+            const lines = text.split('\n');
+            const names = [];
+            const nameRegex = /^[가-힣]{2,4}$/; // 2~4글자 한글 정규식
             
-            // UI elements reset
-            const container = document.getElementById('picker-container');
-            container.classList.remove('custom-theme');
-            document.getElementById('picker-title').innerText = "학급 랜덤 발표자 뽑기";
-            document.getElementById('picker-box').innerText = "?";
-            document.getElementById('picker-box').style.fontSize = "1.5rem";
-            document.getElementById('picker-box').style.color = "";
-            document.getElementById('picker-box').classList.remove('highlight');
-            
-            document.getElementById('app-initial').style.display = 'flex';
-            document.getElementById('app-error').style.display = 'none';
-            document.getElementById('app-working').style.display = 'none';
-            document.getElementById('app-success').style.display = 'none';
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+                
+                // 공백 또는 탭으로 토큰 분리
+                const tokens = line.split(/\s+/);
+                const firstToken = tokens[0];
+                
+                // 불필요한 메타 정보 행 무시
+                if (
+                    firstToken.includes("이름") || 
+                    firstToken.includes("최대") || 
+                    firstToken.includes("학년") || 
+                    firstToken.includes("학생") || 
+                    firstToken.includes("번호") || 
+                    firstToken.includes("휴대폰") ||
+                    firstToken.includes("페이지") ||
+                    firstToken.includes("of")
+                ) {
+                    continue;
+                }
+                
+                if (nameRegex.test(firstToken)) {
+                    names.push(firstToken);
+                }
+            }
+            return names;
         }
+
+        // 추첨 룰렛(슬롯머신) 실행 함수
+        function startDrawing() {
+            if (isDrawing) return;
+
+            // 명단 예외 처리
+            if (students.length === 0) {
+                alert("⚠️ 학생 명단이 비어있습니다! 명단을 먼저 채워주세요.");
+                return;
+            }
+
+            // 가용 명단 걸러내기
+            let pool = [...students];
+            if (excludePickedCheckbox.checked) {
+                pool = students.filter(name => !pickedStudents.has(name));
+            }
+
+            // 모든 명단이 다 선발되었을 때의 자동 리셋 로직
+            if (pool.length === 0) {
+                alert("🔔 모든 학생이 한 번씩 뽑혔습니다! 기록을 자동으로 초기화하고 처음부터 다시 뽑습니다.");
+                pickedStudents.clear();
+                updateCounts();
+                pool = [...students];
+            }
+
+            // 애니메이션 시작
+            isDrawing = true;
+            drawButton.disabled = true;
+            drawButton.classList.add('opacity-60', 'cursor-not-allowed');
+            winBadge.classList.add('hidden');
+            winBadge.classList.remove('scale-100');
+            winBadge.classList.add('scale-0');
+            statusLabel.textContent = "두구두구... 과연 당첨자는?!";
+            statusLabel.classList.add('animate-pulse');
+
+            sound.init();
+
+            let counter = 0;
+            const maxTicks = 25; // 총 롤링 횟수
+            let delay = 50; // 시작 지연시간 (ms)
+
+            function roll() {
+                counter++;
+                // 풀에서 랜덤 이름 임시 선택
+                const tempIndex = Math.floor(Math.random() * pool.length);
+                const tempName = pool[tempIndex];
+                
+                // 롤링 텍스트 대입
+                slotCard.textContent = tempName;
+                sound.playTick();
+
+                // 3D 튕김 효과 애니메이션 클래스 제어
+                slotCard.style.transform = `scale(${1 + Math.random()*0.15}) rotate(${Math.random()*4 - 2}deg)`;
+
+                if (counter < maxTicks) {
+                    // 갈수록 속도가 느려지는 슬롯머신 연출
+                    if (counter > maxTicks * 0.7) {
+                        delay += 35;
+                    } else if (counter > maxTicks * 0.4) {
+                        delay += 15;
+                    }
+                    setTimeout(roll, delay);
+                } else {
+                    // 최종 확정 및 당첨 처리
+                    finalizeDraw(pool);
+                }
+            }
+
+            roll();
+        }
+
+        // 최종 당첨자 결과 처리
+        function finalizeDraw(pool) {
+            const finalIndex = Math.floor(Math.random() * pool.length);
+            const winner = pool[finalIndex];
+
+            // 결과 표기 및 애니메이션 스타일 부여
+            slotCard.textContent = winner;
+            slotCard.style.transform = 'scale(1.25)';
+            statusLabel.textContent = "🎉 당첨을 축하합니다! 🎉";
+            statusLabel.classList.remove('animate-pulse');
+
+            // 당첨 주인공 뱃지 활성화
+            winBadge.classList.remove('hidden');
+            setTimeout(() => {
+                winBadge.classList.remove('scale-0');
+                winBadge.classList.add('scale-100');
+            }, 50);
+
+            // 소리 효과 및 Confetti 폭죽 효과 터뜨리기
+            sound.playWin();
+            
+            // Confetti 커스텀 설정
+            const end = Date.now() + 800;
+            const colors = ['#4ade80', '#fbbf24', '#3b82f6', '#f43f5e'];
+
+            (function frame() {
+                confetti({
+                    particleCount: 4,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 4,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            // 중복 방지 저장
+            pickedStudents.add(winner);
+            
+            // 상태 해제
+            isDrawing = false;
+            drawButton.disabled = false;
+            drawButton.classList.remove('opacity-60', 'cursor-not-allowed');
+
+            updateCounts();
+        }
+
+        // 6. 이벤트 리스너 등록
+
+        // 초기 로드 시 기존 파일이 존재하면 파싱 데이터 주입
+        window.addEventListener('DOMContentLoaded', () => {
+            // PDF 파싱이 성공적으로 사전에 완료된 35명 명단을 기본으로 띄움
+            studentListTextarea.value = INITIAL_STUDENTS.join('\n');
+            syncStudentsFromInput();
+        });
+
+        // 텍스트 변경 감지
+        studentListTextarea.addEventListener('input', syncStudentsFromInput);
+
+        // 옵션 스위치 작동 시 수치 재계산
+        excludePickedCheckbox.addEventListener('change', updateCounts);
+
+        // 뽑기 버튼 클릭
+        drawButton.addEventListener('click', startDrawing);
+
+        // 전체 초기화
+        resetPickedButton.addEventListener('click', () => {
+            if (confirm("정말 모든 추첨 기록을 초기화하시겠습니까?")) {
+                pickedStudents.clear();
+                updateCounts();
+                slotCard.textContent = "❓❓❓";
+                slotCard.style.transform = 'scale(1)';
+                statusLabel.textContent = "추첨을 진행해주세요!";
+                winBadge.classList.add('hidden');
+                winBadge.classList.remove('scale-100');
+                winBadge.classList.add('scale-0');
+                sound.playTick();
+            }
+        });
+
+        // 사운드 온오프 제어
+        soundToggleBtn.addEventListener('click', () => {
+            sound.muted = !sound.muted;
+            if (sound.muted) {
+                soundIcon.textContent = "🔇";
+                soundText.textContent = "소리 끔";
+                soundToggleBtn.classList.remove('bg-slate-100', 'text-slate-700');
+                soundToggleBtn.classList.add('bg-red-50', 'text-red-500');
+            } else {
+                soundIcon.textContent = "🔊";
+                soundText.textContent = "소리 켬";
+                soundToggleBtn.classList.remove('bg-red-50', 'text-red-500');
+                soundToggleBtn.classList.add('bg-slate-100', 'text-slate-700');
+                sound.playTick();
+            }
+        });
+
+        // 로컬 PDF 드래그앤드롭/파일업로드 실시간 파싱 처리
+        pdfFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                const typedarray = new Uint8Array(this.result);
+                try {
+                    statusLabel.textContent = "📄 PDF 분석 중...";
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let fullText = "";
+                    
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(" ");
+                        fullText += pageText + "\n";
+                    }
+
+                    const parsedNames = parseNamesFromText(fullText);
+                    if (parsedNames.length > 0) {
+                        studentListTextarea.value = parsedNames.join('\n');
+                        syncStudentsFromInput();
+                        statusLabel.textContent = "준비 완료!";
+                        alert(`🎉 PDF 파일로부터 ${parsedNames.length}명의 학생 이름을 성공적으로 추출하여 등록했습니다!`);
+                    } else {
+                        statusLabel.textContent = "분석 실패";
+                        alert("⚠️ PDF 파일 내에서 학생 이름을 검출하지 못했습니다. 명단 형식을 확인해주세요.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    statusLabel.textContent = "에러 발생";
+                    alert("⚠️ PDF 파일 로드 중 오류가 발생했습니다.");
+                }
+            };
+            fileReader.readAsArrayBuffer(file);
+        });
+
     </script>
 </body>
 </html>
