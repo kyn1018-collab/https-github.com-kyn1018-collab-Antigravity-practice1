@@ -112,12 +112,12 @@
                     </div>
                     
                     <p class="text-xs text-slate-400 mb-2 leading-relaxed">
-                        * 이름은 <strong>줄바꿈(Enter)</strong>으로 구분하며, <strong>"번호 이름"</strong> 형식도 자동 인식합니다.<br>
+                        * 이름은 <strong>줄바꿈(Enter)</strong>으로 구분합니다.<br>
                         * PDF, 한글(.hwpx), 텍스트(.txt, .csv) 파일을 업로드하면 명단이 자동 추출됩니다.
                     </p>
                     
                     <!-- 명단 텍스트 영역 -->
-                    <textarea id="studentList" rows="12" class="w-full p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent font-mono text-slate-700 resize-none leading-relaxed transition-all shadow-inner bg-slate-50" placeholder="여기에 학생 이름을 입력하거나 파일을 불러오세요."></textarea>
+                    <textarea id="studentList" rows="12" class="w-full p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent font-mono text-slate-700 resize-none leading-relaxed transition-all shadow-inner bg-slate-50" placeholder="여기에 학생 이름을 직접 입력하거나 파일을 불러오세요."></textarea>
                 </div>
 
                 <!-- 설정 옵션 -->
@@ -192,7 +192,7 @@
                     
                     <!-- 롤링 슬롯 텍스트 (초대형 폰트 4rem 이상) -->
                     <div class="h-28 overflow-hidden flex items-center justify-center w-full relative">
-                        <div id="slotCard" class="slot-card text-center text-white font-extrabold text-4xl sm:text-5xl md:text-7xl tracking-wide select-none drop-shadow-[0_4px_10px_rgba(255,255,255,0.2)]">
+                        <div id="slotCard" class="slot-card text-center text-white font-extrabold text-5xl md:text-7xl tracking-wide select-none drop-shadow-[0_4px_10px_rgba(255,255,255,0.2)]">
                             ❓❓❓
                         </div>
                     </div>
@@ -222,18 +222,7 @@
         // PDF.js 글로벌 워커 설정
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // 1. 사전에 PDF 파싱으로 알아낸 35명의 (번호, 이름) 명단 (최우선 탑재)
-        const INITIAL_STUDENTS = [
-            "1번 김고은", "2번 전지현", "3번 조보아", "4번 김희애", "5번 한지민",
-            "6번 아이유", "7번 설인아", "8번 신세경", "9번 김희선", "10번 박신혜",
-            "11번 변우석", "12번 박보검", "13번 공유", "14번 남주혁", "15번 강동원",
-            "16번 박서준", "17번 이정재", "18번 정우성", "19번 송강", "20번 지창욱",
-            "21번 아이린", "22번 김유정", "23번 김태리", "24번 이영애", "25번 장윤정",
-            "26번 배수지", "27번 송혜교", "28번 한소희", "29번 김태희", "30번 이민정",
-            "31번 공효진", "32번 이준혁", "33번 차은우", "34번 정국", "35번 이동욱"
-        ];
-
-        // 2. Web Audio API 기반 오디오 제어 클래스 (무설치 구동)
+        // Web Audio API 기반 오디오 제어 클래스 (무설치 구동)
         class SoundEffects {
             constructor() {
                 this.ctx = null;
@@ -311,7 +300,7 @@
 
         const sound = new SoundEffects();
 
-        // 3. 앱 상태 관리
+        // 앱 상태 관리
         let students = []; // 현재 입력된 학생 배열
         let pickedStudents = new Set(); // 이미 뽑힌 학생 목록
         let isDrawing = false; // 현재 추첨 애니메이션 진행 중 여부
@@ -334,7 +323,7 @@
         const soundIcon = document.getElementById('soundIcon');
         const soundText = document.getElementById('soundText');
 
-        // 4. 기능 함수 정의
+        // 기능 함수 정의
 
         // 명단 데이터 동기화
         function syncStudentsFromInput() {
@@ -386,15 +375,15 @@
             sound.playTick();
         };
 
-        // 지능형 (번호, 이름) 텍스트 추출 알고리즘 (명렬표 오탐 방지)
+        // 지능형 텍스트 추출 알고리즘 (번호를 제외하고 순수 '이름만' 추출)
         function parseNamesAndNumbersFromText(text) {
             const lines = text.split('\n');
             const list = [];
             const nameRegex = /^[가-힣]{2,4}$/;
             const numRegex = /^\d+$/;
             
-            // 명렬표 노이즈 단어 필터링 블랙리스트
-            const blacklist = /^(재적|투표|자수|투표자수|남|여|계|합계|평균|비고|구분|결석|지각|조퇴|결과|체험|실습|테스트|휴대폰|학번|성별|번호|이름|학년|학생|반|전화|주소|일자|날짜|요일|시간|교시|과목|담임|교사|학교|초등|인원|정원|참석|불참|서명|확인|등록|신청|제출|안내|요청|가이드|설정|옵션|기록|초기화|대기|당첨|주인공|축하|나이스|neis|학급)$/i;
+            // 명렬표 노이즈 단어 필터링 블랙리스트 (사용자 피드백 반영: '최대', '학생번호', '휴대폰번호' 추가)
+            const blacklist = /^(최대|학생번호|휴대폰번호|재적|투표|자수|투표자수|남|여|계|합계|평균|비고|구분|결석|지각|조퇴|결과|체험|실습|테스트|휴대폰|학번|성별|번호|이름|학년|학생|반|전화|주소|일자|날짜|요일|시간|교시|과목|담임|교사|학교|초등|인원|정원|참석|불참|서명|확인|등록|신청|제출|안내|요청|가이드|설정|옵션|기록|초기화|대기|당첨|주인공|축하|나이스|neis|학급)$/i;
 
             for (let line of lines) {
                 line = line.trim();
@@ -419,7 +408,7 @@
                 // 이름을 찾지 못했으면 패스
                 if (!name) continue;
                 
-                // 2. 번호 찾기 (학적 정보 꼬임 방지를 위해 맨 앞 또는 맨 뒤 토큰 우선 탐색)
+                // 2. 번호 찾기 (정렬을 위해 내부적으로만 1~100 숫자 탐색)
                 let number = null;
                 
                 // 규칙 A: 맨 앞 토큰이 숫자이고 1~100 사이인 경우
@@ -438,7 +427,7 @@
                     }
                 }
                 
-                // 규칙 C: 맨 앞과 맨 뒤에서 찾지 못했지만 전체 문맥 중 숫자가 단 하나만 존재하는 경우 폴백
+                // 규칙 C: 폴백 전체 숫자 탐색
                 if (number === null) {
                     const numbersInLine = tokens.filter(t => numRegex.test(t)).map(t => parseInt(t, 10));
                     if (numbersInLine.length === 1) {
@@ -451,25 +440,15 @@
                 
                 list.push({
                     name: name,
-                    number: number !== null ? number : ""
+                    number: number !== null ? number : 999 // 번호가 없으면 뒤로 정렬
                 });
             }
             
             // 번호 순 정렬
-            list.sort((a, b) => {
-                if (a.number !== "" && b.number !== "") return a.number - b.number;
-                if (a.number !== "") return -1;
-                if (b.number !== "") return 1;
-                return 0;
-            });
+            list.sort((a, b) => a.number - b.number);
             
-            // 번호번 이름 또는 이름 형태로 가공 반환
-            return list.map(item => {
-                if (item.number !== "") {
-                    return `${item.number}번 ${item.name}`;
-                }
-                return item.name;
-            });
+            // 사용자 요청: 번호 표기 없이 '순수 학생 이름만' 줄바꿈으로 반환
+            return list.map(item => item.name);
         }
 
         // PDF 파일 파싱 (Promise 기반)
@@ -514,11 +493,9 @@
                         let fullText = "";
                         for (const fileName of sectionFiles) {
                             const xmlText = await zip.file(fileName).async("string");
-                            // <hp:t> 태그 내의 한글 텍스트 추출
                             const regex = /<hp:t[^>]*>(.*?)<\/hp:t>/g;
                             let match;
                             while ((match = regex.exec(xmlText)) !== null) {
-                                // XML 엔티티 디코딩
                                 let textNode = match[1]
                                     .replace(/&amp;/g, "&")
                                     .replace(/&lt;/g, "<")
@@ -544,7 +521,6 @@
                 const fileReader = new FileReader();
                 fileReader.onload = function() {
                     const text = this.result;
-                    // 깨진 문자가 보이면 EUC-KR로 다시 읽음 (ANSI 텍스트 파일 지원)
                     if (text.includes('')) {
                         const fallbackReader = new FileReader();
                         fallbackReader.onload = function() {
@@ -608,11 +584,9 @@
                 slotCard.textContent = tempName;
                 sound.playTick();
 
-                // 3D 튕김 효과 애니메이션 클래스 제어
                 slotCard.style.transform = `scale(${1 + Math.random()*0.15}) rotate(${Math.random()*4 - 2}deg)`;
 
                 if (counter < maxTicks) {
-                    // 갈수록 속도가 느려지는 슬롯머신 연출
                     if (counter > maxTicks * 0.7) {
                         delay += 35;
                     } else if (counter > maxTicks * 0.4) {
@@ -632,23 +606,19 @@
             const finalIndex = Math.floor(Math.random() * pool.length);
             const winner = pool[finalIndex];
 
-            // 결과 표기 및 애니메이션 스타일 부여
             slotCard.textContent = winner;
             slotCard.style.transform = 'scale(1.2)';
             statusLabel.textContent = "🎉 당첨을 축하합니다! 🎉";
             statusLabel.classList.remove('animate-pulse');
 
-            // 당첨 주인공 뱃지 활성화
             winBadge.classList.remove('hidden');
             setTimeout(() => {
                 winBadge.classList.remove('scale-0');
                 winBadge.classList.add('scale-100');
             }, 50);
 
-            // 소리 효과 및 Confetti 폭죽 효과 터뜨리기
             sound.playWin();
             
-            // Confetti 커스텀 설정
             const end = Date.now() + 800;
             const colors = ['#4ade80', '#fbbf24', '#3b82f6', '#f43f5e'];
 
@@ -673,10 +643,7 @@
                 }
             }());
 
-            // 중복 방지 저장
             pickedStudents.add(winner);
-            
-            // 상태 해제
             isDrawing = false;
             drawButton.disabled = false;
             drawButton.classList.remove('opacity-60', 'cursor-not-allowed');
@@ -684,11 +651,11 @@
             updateCounts();
         }
 
-        // 5. 이벤트 리스너 등록
+        // 이벤트 리스너 등록
 
-        // 초기 로드 시 기존 파일이 존재하면 파싱 데이터 주입
+        // 초기 로드 시: 사용자 요청으로 처음에는 텍스트 창을 비워둠 (초기 명단 미대입)
         window.addEventListener('DOMContentLoaded', () => {
-            studentListTextarea.value = INITIAL_STUDENTS.join('\n');
+            studentListTextarea.value = "";
             syncStudentsFromInput();
         });
 
@@ -733,7 +700,7 @@
             }
         });
 
-        // 로컬 파일 드래그앤드롭/파일업로드 실시간 파싱 처리 (PDF, HWPX, TXT, CSV 통합)
+        // 로컬 파일 업로드 실시간 파싱 처리
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -758,7 +725,7 @@
                     studentListTextarea.value = parsedList.join('\n');
                     syncStudentsFromInput();
                     statusLabel.textContent = "준비 완료!";
-                    alert(`🎉 파일로부터 ${parsedList.length}명의 학생 명단을 성공적으로 추출하여 등록했습니다!`);
+                    alert(`🎉 파일로부터 ${parsedList.length}명의 학생 이름을 성공적으로 추출했습니다!`);
                 } else {
                     statusLabel.textContent = "분석 실패";
                     alert("⚠️ 파일 내에서 학생 이름을 검출하지 못했습니다. 명단 형식을 확인해주세요.");
@@ -769,7 +736,6 @@
                 alert(`⚠️ 파일 로드 중 오류가 발생했습니다: ${error.message}`);
             }
             
-            // 동일 파일 재업로드 시 이벤트 재발화를 위해 값 초기화
             fileInput.value = "";
         });
 
