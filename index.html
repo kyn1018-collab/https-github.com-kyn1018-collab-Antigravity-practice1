@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- PDF.js CDN (로컬 PDF 실시간 파싱용) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- JSZip CDN (로컬 HWPX 한글 파일 실시간 파싱용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <!-- Google Fonts 연동 (둥글둥글하고 가독성 좋은 폰트) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,13 +81,13 @@
             </div>
         </div>
         
-        <!-- 사운드 및 테마 컨트롤 -->
+        <!-- 사운드 및 정보 -->
         <div class="flex items-center gap-4">
             <button id="soundToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors text-sm font-bold text-slate-700">
                 <span id="soundIcon">🔊</span> <span id="soundText" class="hidden sm:inline">소리 켬</span>
             </button>
             <div class="text-xs text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200/60">
-                현재 날짜: <span class="font-mono text-slate-600">2026-07-16</span>
+                기준일자: <span class="font-mono text-slate-600">2026-07-20</span>
             </div>
         </div>
     </header>
@@ -93,28 +95,29 @@
     <!-- 메인 레이아웃 -->
     <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         
-        <!-- 좌측: 설정 및 명단 카드 (4 cols) -->
+        <!-- 좌측: 설정 및 명단 카드 (5 cols) -->
         <section class="lg:col-span-5 flex flex-col gap-6">
             <!-- 명단 입력 & 설정 카드 -->
             <div class="bg-white rounded-3xl p-6 shadow-xl border border-slate-100 flex flex-col flex-grow justify-between gap-4">
                 <div>
-                    <div class="flex justify-between items-center mb-3">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                         <label for="studentList" class="text-lg font-extrabold text-slate-700 flex items-center gap-2">
                             <span>👥</span> 학생 명단 입력 <span id="studentCount" class="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">0명</span>
                         </label>
-                        <!-- PDF 업로드 버튼 -->
-                        <label class="cursor-pointer text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200 transition-colors flex items-center gap-1">
-                            📄 PDF로 불러오기
-                            <input type="file" id="pdfFileInput" accept=".pdf" class="hidden">
+                        <!-- 파일 업로드 통합 버튼 -->
+                        <label class="cursor-pointer text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-1 shadow-sm">
+                            📂 파일로 명단 등록
+                            <input type="file" id="fileInput" accept=".pdf, .hwpx, .txt, .csv" class="hidden">
                         </label>
                     </div>
                     
                     <p class="text-xs text-slate-400 mb-2 leading-relaxed">
-                        * 학생 이름은 <strong>줄바꿈(Enter)</strong> 기준으로 구분하여 입력해주세요.
+                        * 이름은 <strong>줄바꿈(Enter)</strong>으로 구분하며, <strong>"번호 이름"</strong> 형식도 자동 인식합니다.<br>
+                        * PDF, 한글(.hwpx), 텍스트(.txt, .csv) 파일을 업로드하면 명단이 자동 추출됩니다.
                     </p>
                     
                     <!-- 명단 텍스트 영역 -->
-                    <textarea id="studentList" rows="12" class="w-full p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent font-mono text-slate-700 resize-none leading-relaxed transition-all shadow-inner bg-slate-50" placeholder="여기에 학생 이름을 입력하거나 PDF 파일을 불러오세요."></textarea>
+                    <textarea id="studentList" rows="12" class="w-full p-4 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent font-mono text-slate-700 resize-none leading-relaxed transition-all shadow-inner bg-slate-50" placeholder="여기에 학생 이름을 입력하거나 파일을 불러오세요."></textarea>
                 </div>
 
                 <!-- 설정 옵션 -->
@@ -189,7 +192,7 @@
                     
                     <!-- 롤링 슬롯 텍스트 (초대형 폰트 4rem 이상) -->
                     <div class="h-28 overflow-hidden flex items-center justify-center w-full relative">
-                        <div id="slotCard" class="slot-card text-center text-white font-extrabold text-5xl md:text-7xl tracking-wide select-none drop-shadow-[0_4px_10px_rgba(255,255,255,0.2)]">
+                        <div id="slotCard" class="slot-card text-center text-white font-extrabold text-4xl sm:text-5xl md:text-7xl tracking-wide select-none drop-shadow-[0_4px_10px_rgba(255,255,255,0.2)]">
                             ❓❓❓
                         </div>
                     </div>
@@ -219,26 +222,18 @@
         // PDF.js 글로벌 워커 설정
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // 1. PDF 파싱 실패 시 대체할 20명의 기본 예시 명단
-        const DEFAULT_STUDENTS = [
-            "김고은", "전지현", "조보아", "김희애", "한지민",
-            "아이유", "설인아", "신세경", "김희선", "박신혜",
-            "변우석", "박보검", "공유", "남주혁", "강동원",
-            "박서준", "이정재", "정우성", "송강", "지창욱"
-        ];
-
-        // 2. 사전에 PDF 파싱으로 알아낸 35명의 명단 (최우선 탑재)
+        // 1. 사전에 PDF 파싱으로 알아낸 35명의 (번호, 이름) 명단 (최우선 탑재)
         const INITIAL_STUDENTS = [
-            "김고은", "전지현", "조보아", "김희애", "한지민",
-            "아이유", "설인아", "신세경", "김희선", "박신혜",
-            "변우석", "박보검", "공유", "남주혁", "강동원",
-            "박서준", "이정재", "정우성", "송강", "지창욱",
-            "아이린", "김유정", "김태리", "이영애", "장윤정",
-            "배수지", "송혜교", "한소희", "김태희", "이민정",
-            "공효진", "이준혁", "차은우", "정국", "이동욱"
+            "1번 김고은", "2번 전지현", "3번 조보아", "4번 김희애", "5번 한지민",
+            "6번 아이유", "7번 설인아", "8번 신세경", "9번 김희선", "10번 박신혜",
+            "11번 변우석", "12번 박보검", "13번 공유", "14번 남주혁", "15번 강동원",
+            "16번 박서준", "17번 이정재", "18번 정우성", "19번 송강", "20번 지창욱",
+            "21번 아이린", "22번 김유정", "23번 김태리", "24번 이영애", "25번 장윤정",
+            "26번 배수지", "27번 송혜교", "28번 한소희", "29번 김태희", "30번 이민정",
+            "31번 공효진", "32번 이준혁", "33번 차은우", "34번 정국", "35번 이동욱"
         ];
 
-        // 3. Web Audio API 기반 오디오 제어 클래스 (무설치 구동)
+        // 2. Web Audio API 기반 오디오 제어 클래스 (무설치 구동)
         class SoundEffects {
             constructor() {
                 this.ctx = null;
@@ -316,7 +311,7 @@
 
         const sound = new SoundEffects();
 
-        // 4. 앱 상태 관리
+        // 3. 앱 상태 관리
         let students = []; // 현재 입력된 학생 배열
         let pickedStudents = new Set(); // 이미 뽑힌 학생 목록
         let isDrawing = false; // 현재 추첨 애니메이션 진행 중 여부
@@ -334,12 +329,12 @@
         const winBadge = document.getElementById('winBadge');
         const excludePickedCheckbox = document.getElementById('excludePicked');
         const resetPickedButton = document.getElementById('resetPicked');
-        const pdfFileInput = document.getElementById('pdfFileInput');
+        const fileInput = document.getElementById('fileInput');
         const soundToggleBtn = document.getElementById('soundToggle');
         const soundIcon = document.getElementById('soundIcon');
         const soundText = document.getElementById('soundText');
 
-        // 5. 기능 함수 정의
+        // 4. 기능 함수 정의
 
         // 명단 데이터 동기화
         function syncStudentsFromInput() {
@@ -378,8 +373,8 @@
 
             pickedStudents.forEach(name => {
                 const badge = document.createElement('span');
-                badge.className = "text-xs font-bold bg-red-50 text-red-600 border border-red-100 px-2 py-1 rounded-lg flex items-center gap-1 animate-fade-in";
-                badge.innerHTML = `${name} <button class="hover:text-red-800 focus:outline-none" onclick="removeSinglePicked('${name}')">×</button>`;
+                badge.className = "text-xs font-bold bg-red-50 text-red-600 border border-red-100 px-2 py-1 rounded-lg flex items-center gap-1 animate-fade-in shadow-sm";
+                badge.innerHTML = `${name} <button class="hover:text-red-800 font-bold focus:outline-none" onclick="removeSinglePicked('${name}')">×</button>`;
                 pickedListContainer.appendChild(badge);
             });
         }
@@ -391,39 +386,187 @@
             sound.playTick();
         };
 
-        // PDF 텍스트에서 한글 학생 이름 추출 로직
-        function parseNamesFromText(text) {
+        // 지능형 (번호, 이름) 텍스트 추출 알고리즘
+        function parseNamesAndNumbersFromText(text) {
             const lines = text.split('\n');
-            const names = [];
-            const nameRegex = /^[가-힣]{2,4}$/; // 2~4글자 한글 정규식
+            const list = [];
+            const nameRegex = /^[가-힣]{2,4}$/;
+            const numRegex = /^\d+$/;
             
             for (let line of lines) {
                 line = line.trim();
                 if (!line) continue;
                 
-                // 공백 또는 탭으로 토큰 분리
-                const tokens = line.split(/\s+/);
-                const firstToken = tokens[0];
-                
-                // 불필요한 메타 정보 행 무시
-                if (
-                    firstToken.includes("이름") || 
-                    firstToken.includes("최대") || 
-                    firstToken.includes("학년") || 
-                    firstToken.includes("학생") || 
-                    firstToken.includes("번호") || 
-                    firstToken.includes("휴대폰") ||
-                    firstToken.includes("페이지") ||
-                    firstToken.includes("of")
-                ) {
+                // 불필요한 메타 정보 필터링
+                if (/이름|학년|학생|번호|휴대폰|전화|페이지|of/i.test(line)) {
                     continue;
                 }
+
+                // 패턴 1: 라인 시작이 '숫자 이름' 인 경우 (예: "1 김고은", "02 전지현", "3.조보아", "4 - 아이유")
+                const startPattern = /^(\d+)\s*[,.\s-]?\s*([가-힣]{2,4})(?:\s|$)/;
+                const matchStart = line.match(startPattern);
+                if (matchStart) {
+                    list.push({
+                        number: parseInt(matchStart[1], 10),
+                        name: matchStart[2]
+                    });
+                    continue;
+                }
+
+                // 패턴 2: 라인 끝이 '이름 숫자' 인 경우 (예: "김고은 1", "전지현(2)", "조보아 3번")
+                const endPattern = /(?:^|\s)([가-힣]{2,4})\s*[(]?\s*(\d+)\s*번?[)]?$/;
+                const matchEnd = line.match(endPattern);
+                if (matchEnd) {
+                    list.push({
+                        number: parseInt(matchEnd[2], 10),
+                        name: matchEnd[1]
+                    });
+                    continue;
+                }
+
+                // 패턴 3: 폴백 토큰 분리 분석
+                const tokens = line.split(/[\s,./\-_()]+/).filter(t => t.length > 0);
+                let detectedNum = null;
+                let detectedName = null;
+                let nameIndex = -1;
                 
-                if (nameRegex.test(firstToken)) {
-                    names.push(firstToken);
+                for (let i = 0; i < tokens.length; i++) {
+                    if (nameRegex.test(tokens[i])) {
+                        detectedName = tokens[i];
+                        nameIndex = i;
+                        break;
+                    }
+                }
+                
+                if (detectedName) {
+                    // 이름 토큰 바로 좌우에 숫자가 있는지 분석 (학년/반과 번호 꼬임 방지)
+                    if (nameIndex > 0 && numRegex.test(tokens[nameIndex - 1])) {
+                        detectedNum = parseInt(tokens[nameIndex - 1], 10);
+                    } else if (nameIndex < tokens.length - 1 && numRegex.test(tokens[nameIndex + 1])) {
+                        detectedNum = parseInt(tokens[nameIndex + 1], 10);
+                    } else {
+                        // 주변에 없으면 전체 토큰에서 첫 번째로 발견되는 100 이하의 숫자
+                        for (let token of tokens) {
+                            if (numRegex.test(token)) {
+                                const val = parseInt(token, 10);
+                                if (val > 0 && val <= 100) {
+                                    detectedNum = val;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    list.push({
+                        name: detectedName,
+                        number: (detectedNum && detectedNum <= 100) ? detectedNum : ""
+                    });
                 }
             }
-            return names;
+            
+            // 번호 순 정렬
+            list.sort((a, b) => {
+                if (a.number !== "" && b.number !== "") return a.number - b.number;
+                if (a.number !== "") return -1;
+                if (b.number !== "") return 1;
+                return 0;
+            });
+            
+            // 번호번 이름 또는 이름 형태로 가공 반환
+            return list.map(item => {
+                if (item.number !== "") {
+                    return `${item.number}번 ${item.name}`;
+                }
+                return item.name;
+            });
+        }
+
+        // PDF 파일 파싱 (Promise 기반)
+        async function parsePdfFile(file) {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.onload = async function() {
+                    const typedarray = new Uint8Array(this.result);
+                    try {
+                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                        let fullText = "";
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            const pageText = textContent.items.map(item => item.str).join(" ");
+                            fullText += pageText + "\n";
+                        }
+                        resolve(fullText);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                fileReader.onerror = () => reject(fileReader.error);
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
+        // HWPX 한글 파일 파싱 (JSZip 기반)
+        async function parseHwpxFile(file) {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.onload = async function() {
+                    try {
+                        const zip = await JSZip.loadAsync(this.result);
+                        const sectionFiles = Object.keys(zip.files).filter(name => name.startsWith('Contents/section'));
+                        
+                        if (sectionFiles.length === 0) {
+                            reject(new Error("한글 파일(section.xml) 구조를 찾을 수 없습니다."));
+                            return;
+                        }
+                        
+                        let fullText = "";
+                        for (const fileName of sectionFiles) {
+                            const xmlText = await zip.file(fileName).async("string");
+                            // <hp:t> 태그 내의 한글 텍스트 추출
+                            const regex = /<hp:t[^>]*>(.*?)<\/hp:t>/g;
+                            let match;
+                            while ((match = regex.exec(xmlText)) !== null) {
+                                // XML 엔티티 디코딩
+                                let textNode = match[1]
+                                    .replace(/&amp;/g, "&")
+                                    .replace(/&lt;/g, "<")
+                                    .replace(/&gt;/g, ">")
+                                    .replace(/&quot;/g, '"')
+                                    .replace(/&#39;/g, "'");
+                                fullText += textNode + "\n";
+                            }
+                        }
+                        resolve(fullText);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                fileReader.onerror = () => reject(fileReader.error);
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
+        // 텍스트 파일 파싱 (인코딩 자동 감지)
+        async function parseTextFile(file) {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.onload = function() {
+                    const text = this.result;
+                    // 깨진 문자가 보이면 EUC-KR로 다시 읽음 (ANSI 텍스트 파일 지원)
+                    if (text.includes('')) {
+                        const fallbackReader = new FileReader();
+                        fallbackReader.onload = function() {
+                            resolve(this.result);
+                        };
+                        fallbackReader.readAsText(file, "EUC-KR");
+                    } else {
+                        resolve(text);
+                    }
+                };
+                fileReader.onerror = () => reject(fileReader.error);
+                fileReader.readAsText(file, "UTF-8");
+            });
         }
 
         // 추첨 룰렛(슬롯머신) 실행 함수
@@ -468,11 +611,9 @@
 
             function roll() {
                 counter++;
-                // 풀에서 랜덤 이름 임시 선택
                 const tempIndex = Math.floor(Math.random() * pool.length);
                 const tempName = pool[tempIndex];
                 
-                // 롤링 텍스트 대입
                 slotCard.textContent = tempName;
                 sound.playTick();
 
@@ -488,7 +629,6 @@
                     }
                     setTimeout(roll, delay);
                 } else {
-                    // 최종 확정 및 당첨 처리
                     finalizeDraw(pool);
                 }
             }
@@ -503,7 +643,7 @@
 
             // 결과 표기 및 애니메이션 스타일 부여
             slotCard.textContent = winner;
-            slotCard.style.transform = 'scale(1.25)';
+            slotCard.style.transform = 'scale(1.2)';
             statusLabel.textContent = "🎉 당첨을 축하합니다! 🎉";
             statusLabel.classList.remove('animate-pulse');
 
@@ -553,11 +693,10 @@
             updateCounts();
         }
 
-        // 6. 이벤트 리스너 등록
+        // 5. 이벤트 리스너 등록
 
         // 초기 로드 시 기존 파일이 존재하면 파싱 데이터 주입
         window.addEventListener('DOMContentLoaded', () => {
-            // PDF 파싱이 성공적으로 사전에 완료된 35명 명단을 기본으로 띄움
             studentListTextarea.value = INITIAL_STUDENTS.join('\n');
             syncStudentsFromInput();
         });
@@ -603,43 +742,44 @@
             }
         });
 
-        // 로컬 PDF 드래그앤드롭/파일업로드 실시간 파싱 처리
-        pdfFileInput.addEventListener('change', async (e) => {
+        // 로컬 파일 드래그앤드롭/파일업로드 실시간 파싱 처리 (PDF, HWPX, TXT, CSV 통합)
+        fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            const fileReader = new FileReader();
-            fileReader.onload = async function() {
-                const typedarray = new Uint8Array(this.result);
-                try {
-                    statusLabel.textContent = "📄 PDF 분석 중...";
-                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                    let fullText = "";
-                    
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        const pageText = textContent.items.map(item => item.str).join(" ");
-                        fullText += pageText + "\n";
-                    }
+            const extension = file.name.split('.').pop().toLowerCase();
+            statusLabel.textContent = "📄 파일 분석 중...";
 
-                    const parsedNames = parseNamesFromText(fullText);
-                    if (parsedNames.length > 0) {
-                        studentListTextarea.value = parsedNames.join('\n');
-                        syncStudentsFromInput();
-                        statusLabel.textContent = "준비 완료!";
-                        alert(`🎉 PDF 파일로부터 ${parsedNames.length}명의 학생 이름을 성공적으로 추출하여 등록했습니다!`);
-                    } else {
-                        statusLabel.textContent = "분석 실패";
-                        alert("⚠️ PDF 파일 내에서 학생 이름을 검출하지 못했습니다. 명단 형식을 확인해주세요.");
-                    }
-                } catch (error) {
-                    console.error(error);
-                    statusLabel.textContent = "에러 발생";
-                    alert("⚠️ PDF 파일 로드 중 오류가 발생했습니다.");
+            try {
+                let extractedText = "";
+                if (extension === 'pdf') {
+                    extractedText = await parsePdfFile(file);
+                } else if (extension === 'hwpx') {
+                    extractedText = await parseHwpxFile(file);
+                } else if (extension === 'txt' || extension === 'csv') {
+                    extractedText = await parseTextFile(file);
+                } else {
+                    throw new Error("지원하지 않는 파일 형식입니다. (PDF, HWPX, TXT, CSV 지원)");
                 }
-            };
-            fileReader.readAsArrayBuffer(file);
+
+                const parsedList = parseNamesAndNumbersFromText(extractedText);
+                if (parsedList.length > 0) {
+                    studentListTextarea.value = parsedList.join('\n');
+                    syncStudentsFromInput();
+                    statusLabel.textContent = "준비 완료!";
+                    alert(`🎉 파일로부터 ${parsedList.length}명의 학생 명단을 성공적으로 추출하여 등록했습니다!`);
+                } else {
+                    statusLabel.textContent = "분석 실패";
+                    alert("⚠️ 파일 내에서 학생 이름을 검출하지 못했습니다. 명단 형식을 확인해주세요.");
+                }
+            } catch (error) {
+                console.error(error);
+                statusLabel.textContent = "에러 발생";
+                alert(`⚠️ 파일 로드 중 오류가 발생했습니다: ${error.message}`);
+            }
+            
+            // 동일 파일 재업로드 시 이벤트 재발화를 위해 값 초기화
+            fileInput.value = "";
         });
 
     </script>
