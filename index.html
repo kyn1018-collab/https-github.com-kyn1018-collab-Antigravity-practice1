@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <!-- JSZip CDN (로컬 HWPX 한글 파일 실시간 파싱용) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- SheetJS CDN (진짜 엑셀 .xlsx 파일 실시간 생성 및 파싱용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Google Fonts 연동 (둥글둥글하고 가독성 좋은 폰트) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -107,22 +109,22 @@
                         
                         <!-- 다운로드 및 업로드 버튼 그룹 -->
                         <div class="flex items-center gap-2">
-                            <!-- 양식 다운로드 버튼 -->
+                            <!-- 진짜 엑셀(.xlsx) 양식 다운로드 버튼 -->
                             <button id="downloadTemplateBtn" class="text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 px-3 py-1.5 rounded-xl border border-amber-200 transition-colors flex items-center justify-center gap-1 shadow-sm">
-                                📥 양식 받기
+                                📥 양식 받기 (엑셀)
                             </button>
                             <!-- 파일 업로드 통합 버튼 -->
                             <label class="cursor-pointer text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-1 shadow-sm">
                                 📂 파일 등록
-                                <input type="file" id="fileInput" accept=".pdf, .hwpx, .txt, .csv" class="hidden">
+                                <input type="file" id="fileInput" accept=".pdf, .hwpx, .txt, .csv, .xlsx" class="hidden">
                             </label>
                         </div>
                     </div>
                     
                     <p class="text-xs text-slate-400 mb-2 leading-relaxed">
                         * 이름은 <strong>줄바꿈(Enter)</strong>으로 구분합니다.<br>
-                        * PDF, 한글(.hwpx), 텍스트(.txt, .csv) 파일을 업로드하면 명단이 자동 추출됩니다.<br>
-                        * <strong>[양식 받기]</strong>로 작성 양식을 다운로드하여 학생을 등록할 수 있습니다.
+                        * 엑셀(.xlsx), PDF, 한글(.hwpx), 텍스트(.txt, .csv) 파일을 업로드하면 명단이 자동 추출됩니다.<br>
+                        * <strong>[양식 받기 (엑셀)]</strong>로 작성 양식을 다운로드하여 학생을 등록할 수 있습니다.
                     </p>
                     
                     <!-- 명단 텍스트 영역 -->
@@ -525,6 +527,31 @@
             });
         }
 
+        // 엑셀(.xlsx) 파일 파싱 (SheetJS 기반)
+        async function parseXlsxFile(file) {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        let fullText = "";
+                        workbook.SheetNames.forEach(sheetName => {
+                            const worksheet = workbook.Sheets[sheetName];
+                            const csv = XLSX.utils.sheet_to_csv(worksheet);
+                            fullText += csv + "\n";
+                        });
+                        resolve(fullText);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                fileReader.onerror = () => reject(fileReader.error);
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
         // 텍스트 파일 파싱 (인코딩 자동 감지)
         async function parseTextFile(file) {
             return new Promise((resolve, reject) => {
@@ -661,18 +688,35 @@
             updateCounts();
         }
 
-        // CSV 양식 다운로드 함수
+        // 진짜 엑셀(.xlsx) 양식 다운로드 함수 (SheetJS 활용)
         function downloadTemplate() {
-            // Excel 한글 깨짐 방지용 UTF-8 BOM 헤더
-            const csvContent = "\ufeff번호,이름\n1,홍길동\n2,이순신\n3,김철수\n4,유관순\n5,신사임당\n";
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", "학생_명단_등록_양식.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // 헤더 및 샘플 데이터
+            const data = [
+                ["번호", "이름"],
+                [1, "홍길동"],
+                [2, "이순신"],
+                [3, "김철수"],
+                [4, "유관순"],
+                [5, "신사임당"]
+            ];
+            
+            try {
+                // 워크북 및 워크시트 생성
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // 워크시트 열 너비 보완 설정
+                ws['!cols'] = [{ wch: 10 }, { wch: 15 }];
+                
+                // 워크북에 워크시트 추가
+                XLSX.utils.book_append_sheet(wb, ws, "학생명단양식");
+                
+                // 파일 내려받기
+                XLSX.writeFile(wb, "학생_명단_등록_양식.xlsx");
+            } catch(e) {
+                console.error("엑셀 파일 다운로드 실패:", e);
+                alert("엑셀 템플릿 생성 중 오류가 발생했습니다.");
+            }
         }
 
         // 이벤트 리스너 등록
@@ -727,7 +771,7 @@
         // 양식 다운로드 버튼 클릭
         downloadTemplateBtn.addEventListener('click', downloadTemplate);
 
-        // 로컬 파일 업로드 실시간 파싱 처리
+        // 로컬 파일 업로드 실시간 파싱 처리 (엑셀 .xlsx 추가)
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -741,10 +785,12 @@
                     extractedText = await parsePdfFile(file);
                 } else if (extension === 'hwpx') {
                     extractedText = await parseHwpxFile(file);
+                } else if (extension === 'xlsx') {
+                    extractedText = await parseXlsxFile(file);
                 } else if (extension === 'txt' || extension === 'csv') {
                     extractedText = await parseTextFile(file);
                 } else {
-                    throw new Error("지원하지 않는 파일 형식입니다. (PDF, HWPX, TXT, CSV 지원)");
+                    throw new Error("지원하지 않는 파일 형식입니다. (엑셀, PDF, HWPX, TXT, CSV 지원)");
                 }
 
                 const parsedList = parseNamesAndNumbersFromText(extractedText);
